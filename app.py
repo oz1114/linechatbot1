@@ -62,7 +62,7 @@ handler = WebhookHandler(specialCS)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-gaming = False
+global gaming = False
 
 
 # function for create tmp dir for download content
