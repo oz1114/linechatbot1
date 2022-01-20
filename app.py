@@ -39,6 +39,16 @@ def callback():
     except InvalidSignatureError:
         abort(400)
     return 'OK'
+	
+# function for create tmp dir for download content
+def make_static_tmp_dir():
+    try:
+        os.makedirs(static_tmp_path)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(static_tmp_path):
+            pass
+        else:
+            raise
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
