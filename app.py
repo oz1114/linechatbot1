@@ -115,16 +115,16 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(text="Bot can't use profile API without user ID"))
 				
-	elif text == 'game' and not gaming:
+    elif text == 'game' and not gaming:
 	    gaming = True
-		line_bot_api.reply_message(
+	    line_bot_api.reply_message(
 		    event.reply_token,
-			TextSendMessage(text="Let's Start Game"))
-	elif text == 'gameover' and gaming:
-		gaming = False
-		line_bot_api.reply_message(
+		    TextSendMessage(text="Let's Start Game"))
+    elif text == 'gameover' and gaming:
+	    gaming = False
+        line_bot_api.reply_message(
 		    event.reply_token,
-			TextSendMessage(text="Game Over"))
+	        TextSendMessage(text="Game Over"))
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=event.message.text))
