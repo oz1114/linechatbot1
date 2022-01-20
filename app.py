@@ -62,6 +62,8 @@ handler = WebhookHandler(specialCS)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
+gaming = False
+
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -95,8 +97,6 @@ def callback():
         abort(400)
 
     return 'OK'
-
-gaming = False
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
