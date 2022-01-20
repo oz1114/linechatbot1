@@ -122,9 +122,9 @@ def handle_text_message(event):
 		    TextSendMessage(text="Let's Start Game"))
     elif text == 'gameover' and gaming:
 	    gaming = False
-        line_bot_api.reply_message(
+	    line_bot_api.reply_message(
 		    event.reply_token,
-	        TextSendMessage(text="Game Over"))
+		    TextSendMessage(text="Game Over"))
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=event.message.text))
