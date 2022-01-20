@@ -41,7 +41,7 @@ def handle_message(event):
 
 def handle_text_message(event):
     text = event.message.text
-	if text == 'profile':
+    if text == 'profile':
         if isinstance(event.source, SourceUser):
             profile = line_bot_api.get_profile(event.source.user_id)
             line_bot_api.reply_message(
