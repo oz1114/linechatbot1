@@ -100,6 +100,7 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+    global gaming
     text = event.message.text
     if text == 'profile' and not gaming:
         if isinstance(event.source, SourceUser):
