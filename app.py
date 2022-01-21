@@ -144,10 +144,14 @@ def handle_text_message(event):
         if profile not in memberList:
             memberList.append(profile)
     elif text == '게임시작' and state==1:
-        members = ''
-        for mem in memberList:
-            members += mem.display_name + ' '
-        line_bot_api.push_message(groupId, TextSendMessage(text='참가 멤버는 '+ members + '입니다'))
+        if len(memberList)<1:
+            line_bot_api.push_message(groupId, TextSendMessage(text='참가 인원이 없습니다'))
+        else:
+            members = ''
+            for mem in memberList:
+                members += mem.display_name + ' '
+            line_bot_api.push_message(groupId, TextSendMessage(text='참가 멤버는 '+ members + '입니다'))
+            state = 2
     elif text == 'time':
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="timer Start"))
