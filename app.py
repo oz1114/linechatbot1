@@ -47,6 +47,8 @@ from linebot.models import (
     SeparatorComponent, QuickReply, QuickReplyButton,
     ImageSendMessage)
 
+from time import sleep
+
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1, x_proto=1)
 
@@ -62,7 +64,7 @@ handler = WebhookHandler(specialCS)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-gaming = False
+state = 0
 
 
 # function for create tmp dir for download content
@@ -100,9 +102,8 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    global gaming
     text = event.message.text
-    if text == 'profile' and not gaming:
+    if text == 'profile':
         if isinstance(event.source, SourceUser):
             profile = line_bot_api.get_profile(event.source.user_id)
             line_bot_api.reply_message(
@@ -115,20 +116,18 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text="Bot can't use profile API without user ID"))
-				
-    elif text == 'game' and not gaming:
-	    gaming = True
-	    line_bot_api.reply_message(
-		    event.reply_token,
-		    TextSendMessage(text="Let's Start Game"))
-    elif text == 'gameover' and gaming:
-	    gaming = False
-	    line_bot_api.reply_message(
-		    event.reply_token,
-		    TextSendMessage(text="Game Over"))
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=event.message.text))
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_text_message0(event):
+    text = event.message.text
+    if text == 'time':
+        sleep(10)
+        line_bot_api.reply_message(
+            TextSendMessage(text = 'time over')
+        )
 
 
 @handler.add(MessageEvent, message=LocationMessage)
