@@ -120,7 +120,7 @@ def handle_text_message(event):
     global roomId
     text = event.message.text
     if text == 'profile':
-        if isinstance(event.source, SourceUser):
+        if isinstance(event.source, SourceRoom):
             profile = line_bot_api.get_profile(event.source.user_id)
             roomId = event.source.room_id
             line_bot_api.reply_message(
