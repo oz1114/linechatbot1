@@ -90,8 +90,8 @@ class Timer1(threading.Thread):
             line_bot_api.push_message(roomId, TextSendMessage(text='땡'))
 
 timerA = Timer1()
-roomId = 0
-groupId = 0
+roomId = ''
+groupId = ''
 
 @app.route("/callback", methods=['POST'])
 def callback():
