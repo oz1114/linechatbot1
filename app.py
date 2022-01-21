@@ -79,6 +79,7 @@ def make_static_tmp_dir():
 
 groupId = ''
 roomId = ''
+memberList = []
 
 class Timer1(threading.Thread):
     def __init__(self):
@@ -122,19 +123,31 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     global timerA
-    global roomId
     global groupId
+    global state
+    global memberList
     text = event.message.text
-    if text == '게임준비':
+    if text == '게임준비' and state==0:
         if isinstance(event.source, SourceGroup):
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text='게임을 골라주세요')
-            )
             groupId = event.source.group_id
+            state = 1
+            memberList = []
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text='게임에 참가하실 분들은 참가 를 입력해주세요')
+            )
         else:
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text="make Group Please"))
+    elif text == '참가' and state==1:
+        profile = line_bot_api.get_profile(event.source.user_id)
+        if profile not in memberList:
+            memberList.append(profile)
+    elif text == '게임시작' and state==1:
+        members = ''
+        for mem in memberList:
+            members += mem.display_name + ' '
+        line_bot_api.push_message(groupId, TextSendMessage(text='참가 멤버는 '+ members + '입니다'))
     elif text == 'time':
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="timer Start"))
@@ -144,6 +157,10 @@ def handle_text_message(event):
         timerA.flag.set()
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="pass"))
+    elif text=='reset':
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text="Reset"))
+        state = 0
     #else:
         #line_bot_api.reply_message(
             #event.reply_token, TextSendMessage(text=event.message.text))
