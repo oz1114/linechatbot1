@@ -126,7 +126,7 @@ def handle_text_message0(event):
     if text == 'time':
         sleep(10)
         line_bot_api.reply_message(
-            evnet.reply_token, TextSendMessage(text = 'time over')
+            event.reply_token, TextSendMessage(text = 'time over')
         )
 
 
