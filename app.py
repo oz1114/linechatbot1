@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import tempfile
+import threading
 from argparse import ArgumentParser
 
 from flask import Flask, request, abort, send_from_directory
@@ -66,7 +67,6 @@ static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
 state = 0
 
-
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
@@ -77,6 +77,25 @@ def make_static_tmp_dir():
         else:
             raise
 
+class Timer1(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.flag = threading.Event()
+    def run(self):
+        i = 10
+        while not self.flag.is_set() and i>0:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=i)
+            )
+            sleep(1)
+        if i==0:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='땡')
+            )
+
+timerA = Timer1()
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -102,6 +121,7 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+    global timerA
     text = event.message.text
     if text == 'profile':
         if isinstance(event.source, SourceUser):
@@ -117,10 +137,12 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(text="Bot can't use profile API without user ID"))
     elif text == 'time':
-        sleep(10)
+        timerA = Timer1()
+        timerA.start()
+    elif text == '정답':
+        timerA.flag.set()
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text = 'time over')
-        )
+            event.reply_token, TextSendMessage(text="pass"))
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=event.message.text))
