@@ -89,6 +89,7 @@ class Timer1(threading.Thread):
         i = 10
         while not self.flag.is_set() and i>0:
             line_bot_api.push_message(groupId, TextSendMessage(text=i))
+            i-=1
             sleep(1)
         if i==0:
             line_bot_api.push_message(groupId, TextSendMessage(text='땡'))
@@ -124,24 +125,16 @@ def handle_text_message(event):
     global roomId
     global groupId
     text = event.message.text
-    if text == 'profile':
-        if isinstance(event.source, SourceUser):
-            profile = line_bot_api.get_profile(event.source.user_id)
+    if text == '게임준비':
+        if isinstance(event.source, SourceGroup):
             line_bot_api.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(text='Status message: ' + str(profile.status_message))
-                ]
-            )
-        elif isinstance(event.source, SourceGroup):
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text='group ID: ' + event.source.group_id)
+                event.reply_token, TextSendMessage(text='게임을 골라주세요')
             )
             groupId = event.source.group_id
         else:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text="Bot can't use profile API without user ID"))
+                TextSendMessage(text="make Group Please"))
     elif text == 'time':
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="timer Start"))
