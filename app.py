@@ -85,6 +85,7 @@ class Timer1(threading.Thread):
         threading.Thread.__init__(self)
         self.flag = threading.Event()
     def run(self):
+        global groupId
         i = 10
         while not self.flag.is_set() and i>0:
             line_bot_api.push_message(groupId, TextSendMessage(text=i))
@@ -121,6 +122,7 @@ def callback():
 def handle_text_message(event):
     global timerA
     global roomId
+    global groupId
     text = event.message.text
     if text == 'profile':
         if isinstance(event.source, SourceUser):
@@ -135,6 +137,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='group ID: ' + event.source.group_id)
             )
+            groupId = event.source.group_id
         else:
             line_bot_api.reply_message(
                 event.reply_token,
