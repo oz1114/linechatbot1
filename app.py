@@ -84,18 +84,13 @@ class Timer1(threading.Thread):
     def run(self):
         i = 10
         while not self.flag.is_set() and i>0:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=i)
-            )
+            line_bot_api.push_message(roomId, TextSendMessage(text=i))
             sleep(1)
         if i==0:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='땡')
-            )
+            line_bot_api.push_message(roomId, TextSendMessage(text='땡'))
 
 timerA = Timer1()
+roomId = 0
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -122,14 +117,17 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     global timerA
+    global roomId
     text = event.message.text
     if text == 'profile':
         if isinstance(event.source, SourceUser):
             profile = line_bot_api.get_profile(event.source.user_id)
+            roomId = event.source.room_id
             line_bot_api.reply_message(
                 event.reply_token, [
                     TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(text='Status message: ' + str(profile.status_message))
+                    TextSendMessage(text='Status message: ' + str(profile.status_message)),
+                    TextSendMessage(text='RoomId: ' + roomId)
                 ]
             )
         else:
