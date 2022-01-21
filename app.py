@@ -92,6 +92,7 @@ class Timer1(threading.Thread):
 timerA = Timer1()
 roomId = ''
 groupId = ''
+blabla = 'haha'
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -127,7 +128,8 @@ def handle_text_message(event):
                 event.reply_token, [
                     TextSendMessage(text='Display name: ' + profile.display_name),
                     TextSendMessage(text='Status message: ' + str(profile.status_message)),
-                    TextSendMessage(text='roomId: '+ roomId)
+                    TextSendMessage(text='roomId: '+ roomId + ' groupId:' + groupId),
+                    TextSendMessage(text=blabla)
                 ]
             )
         else:
@@ -232,10 +234,14 @@ def handle_unfollow(event):
 def handle_join(event):
     global groupId
     global roomId
+    global blabla
+    blabla = "I Joined"
     if isinstance(event.source, SourceGroup):
         groupId = event.source.group_id
+        blabla = "Group"
     elif isinstance(event.source, SourceRoom):
         roomId = event.source.room_id
+        blabla = "Room"
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text='Joined this ' + event.source.type))
