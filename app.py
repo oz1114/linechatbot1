@@ -77,6 +77,9 @@ def make_static_tmp_dir():
         else:
             raise
 
+groupId = ''
+roomId = ''
+
 class Timer1(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -84,14 +87,12 @@ class Timer1(threading.Thread):
     def run(self):
         i = 10
         while not self.flag.is_set() and i>0:
-            line_bot_api.push_message(roomId, TextSendMessage(text=i))
+            line_bot_api.push_message(groupId, TextSendMessage(text=i))
             sleep(1)
         if i==0:
-            line_bot_api.push_message(roomId, TextSendMessage(text='땡'))
+            line_bot_api.push_message(groupId, TextSendMessage(text='땡'))
 
 timerA = Timer1()
-roomId = ''
-groupId = ''
 blabla = 'haha'
 
 @app.route("/callback", methods=['POST'])
@@ -127,10 +128,12 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token, [
                     TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(text='Status message: ' + str(profile.status_message)),
-                    TextSendMessage(text='roomId: '+ roomId + ' groupId:' + groupId),
-                    TextSendMessage(text=blabla)
+                    TextSendMessage(text='Status message: ' + str(profile.status_message))
                 ]
+            )
+        elif isinstance(event.source, SourceGroup):
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text='group ID: ' + event.source.group_id)
             )
         else:
             line_bot_api.reply_message(
@@ -145,9 +148,9 @@ def handle_text_message(event):
         timerA.flag.set()
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="pass"))
-    else:
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=event.message.text))
+    #else:
+        #line_bot_api.reply_message(
+            #event.reply_token, TextSendMessage(text=event.message.text))
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
