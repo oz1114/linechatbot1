@@ -199,7 +199,7 @@ def handle_text_message(event):
     elif text=='1' and state == 2:#사자성어 게임 시작
         state = 3
         if file==None or file.name!='4WS.txt':
-            file = open('4WS.txt','r')
+            file = open('4WS.txt','r',encoding='euc-kr')
         wordSentance4()
     elif text in nowAnswer and state==3 and event.source.user_id==memberList[nowMem].user_id:#사자성어 게임 정답
         timerA.flag.set()
