@@ -17,6 +17,7 @@ import datetime
 import errno
 import json
 import os
+from stat import FILE_ATTRIBUTE_TEMPORARY
 import sys
 import tempfile
 import threading
@@ -72,6 +73,7 @@ memberList = []#게임 참가자 리스트
 file = None#게임 진행에 사용될 파일
 nowMem = 0#현재 순서인 멤버
 nowAnswer = []#현재 정답 리스트
+fileTemp = []#파일 readline저장
 
 def resetGame():#게임 설정 리셋
     global state
@@ -84,6 +86,8 @@ def resetGame():#게임 설정 리셋
     nowMem = 0
     global nowAnswer
     nowAnswer = []
+    global fileTemp
+    fileTemp = []
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -110,6 +114,10 @@ class Timer1(threading.Thread):
             sleep(1)
         if i==0:
             line_bot_api.push_message(groupId, TextSendMessage(text='땡!!'))
+            ans = ''
+            for a in nowAnswer:
+                ans += a +' '
+            line_bot_api.push_message(groupId, TextSendMessage(text='정답은' + ans + '입니다'))
             state = 1
             line_bot_api.push_message(groupId, TextSendMessage(text='게임시작 을 말해주세요'))
 
@@ -120,9 +128,11 @@ def wordSentance4():#사자성어 문제 정하는 함수
     global file
     global nowAnswer
     global timerA
+    global fileTemp
     q = ''
-    fileTemp = file.readlines()
-    t = randint(0,1183)
+    if fileTemp==[]:
+        fileTemp = file.readlines()
+    t = randint(0,len(fileTemp)-1)
     sentance = fileTemp[t]
     si = (int)(len(sentance)/2)
     for i in range(si):
