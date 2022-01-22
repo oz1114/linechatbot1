@@ -209,6 +209,7 @@ def handle_text_message(event):
         if nowMem>=len(memberList):
             line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="미션 성공!!"))
+            state = 1
         else:
             wordSentance4()
     elif text=='reset':
