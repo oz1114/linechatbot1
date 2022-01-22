@@ -217,8 +217,7 @@ def handle_text_message(event):
             event.reply_token, TextSendMessage(text="정답!!"))
         nowMem +=1
         if nowMem>=len(memberList):
-            line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="미션 성공!!"))
+            line_bot_api.push_message(groupId, TextSendMessage(text='미션 성공!!'))
             state = 1
         else:
             wordSentance4()
