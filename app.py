@@ -197,6 +197,7 @@ def handle_text_message(event):
         if profile not in memberList:
             memberList.append(profile)
     elif text == '게임시작' and state==1:
+        nowMem = 0
         if len(memberList)<1:
             line_bot_api.push_message(groupId, TextSendMessage(text='참가 인원이 없습니다'))
         else:
