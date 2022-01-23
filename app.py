@@ -66,10 +66,8 @@ line_bot_api = LineBotApi(specialCAT)
 handler = WebhookHandler(specialCS)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
-
+ws4arr = []
 groupsList = {}
-ws4file = open('4WS.txt','r',encoding='euc-kr')
-ws4arr = ws4file.readlines
 class groupGame:
     def __init__(self,group_id):
         self.state= 0#게임 진행 상태
@@ -91,6 +89,9 @@ class groupGame:
     def wordSentance4(self):#사자성어 정하기
         global ws4arr
         self.nowAnswer = []
+        if(len(ws4arr)==0):
+            ws4file = open('4WS.txt','r',encoding='euc-kr')
+            ws4arr = ws4file.readlines
         q = ''
         t = randint(0,len(ws4arr)-1)
         sentance = ws4arr[t]
