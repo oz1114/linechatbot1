@@ -153,7 +153,7 @@ class groupGame:
             self.resetGame()
         elif text == 'bye':
             line_bot_api.push_message(self.groupId, TextSendMessage(text='Leave Room'))
-            del groupsList(self.groupId)
+            del groupsList[self.groupId]
             line_bot_api.leave_group(self.groupId)
 # function for create tmp dir for download content
 def make_static_tmp_dir():
