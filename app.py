@@ -89,8 +89,13 @@ class groupGame:
     def wordSentance4(self):#사자성어 정하기
         self.nowAnswer = []
         if(len(self.ws4arr)==0):
-            ws4file = open('4WS.txt','r',encoding='euc-kr')
-            self.ws4arr = ws4file.readlines
+            try:
+                ws4file = open('4WS.txt','r',encoding='euc-kr')
+                self.ws4arr = ws4file.readlines
+                ws4file.close()
+            except:
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='파일열기 오류입니다'))
+                return
         q = ''
         t = randint(0,len(self.ws4arr)-1)
         sentance = self.ws4arr[t]
