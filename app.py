@@ -149,6 +149,9 @@ class groupGame:
         elif text=='reset':
             line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
             self.resetGame()
+        elif text == 'bye':
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='Leave Room'))
+            line_bot_api.leave_group(self.groupId)
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
