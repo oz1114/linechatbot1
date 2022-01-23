@@ -66,7 +66,6 @@ line_bot_api = LineBotApi(specialCAT)
 handler = WebhookHandler(specialCS)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
-ws4arr = []
 groupsList = {}
 class groupGame:
     def __init__(self,group_id):
@@ -78,6 +77,7 @@ class groupGame:
         self.nowAnswer = []#현재 정답 리스트
         self.fileTemp = []#파일 저장용 readlines
         self.timerA = Timer1(group_id)#문제 타이머
+        self.ws4arr = []
     def resetGame(self):#게임 진행 상태 리셋
         self.state = 0
         self.memberList = []
@@ -87,14 +87,13 @@ class groupGame:
         self.fileTemp = []
         self.timerA = Timer1(self.groupId)
     def wordSentance4(self):#사자성어 정하기
-        global ws4arr
         self.nowAnswer = []
-        if(len(ws4arr)==0):
+        if(len(self.ws4arr)==0):
             ws4file = open('4WS.txt','r',encoding='euc-kr')
-            ws4arr = ws4file.readlines
+            self.ws4arr = ws4file.readlines
         q = ''
-        t = randint(0,len(ws4arr)-1)
-        sentance = ws4arr[t]
+        t = randint(0,len(self.ws4arr)-1)
+        sentance = self.ws4arr[t]
         si = (int)(len(sentance)/2)
         for i in range(si):
             if i==0:
@@ -129,6 +128,7 @@ class groupGame:
                 self.state = 2
         elif text=='1' and self.state == 2:#사자성어 게임 시작
             shuffle(self.memberList)
+            self.nowMem = 0
             self.wordSentance4()
         elif text in self.nowAnswer and self.state==3 and userId==self.memberList[self.nowMem].user_id:#사자성어 게임 정답
             self.timerA.flag.set()
