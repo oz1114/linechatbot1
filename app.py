@@ -143,6 +143,7 @@ class groupGame:
             self.nowMem +=1
             if self.nowMem>=len(self.memberList):
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='미션 성공!!'))
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='게임시작을 입력해주세요'))
                 self.state = 1
             else:
                 self.wordSentance4()
