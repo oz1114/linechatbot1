@@ -91,7 +91,7 @@ class groupGame:
         if(len(self.ws4arr)==0):
             try:
                 ws4file = open('4WS.txt','r',encoding='euc-kr')
-                self.ws4arr = ws4file.readlines
+                self.ws4arr = ws4file.readlines()
                 ws4file.close()
             except:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='파일열기 오류입니다'))
