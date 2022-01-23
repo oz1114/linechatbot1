@@ -120,6 +120,7 @@ class groupGame:
             profile = line_bot_api.get_profile(userId)
             if profile not in self.memberList:
                self.memberList.append(profile)
+               line_bot_api.push_message(self.groupId, TextSendMessage(text=profile.display_name+' 님 참가하셨습니다'))
         elif text == '게임시작' and self.state==1:
             self.nowMem = 0
             if len(self.memberList)<1:
@@ -134,6 +135,7 @@ class groupGame:
         elif text=='1' and self.state == 2:#사자성어 게임 시작
             shuffle(self.memberList)
             self.nowMem = 0
+            self.state = 3
             self.wordSentance4()
         elif text in self.nowAnswer and self.state==3 and userId==self.memberList[self.nowMem].user_id:#사자성어 게임 정답
             self.timerA.flag.set()
@@ -141,7 +143,7 @@ class groupGame:
             self.nowMem +=1
             if self.nowMem>=len(self.memberList):
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='미션 성공!!'))
-                state = 1
+                self.state = 1
             else:
                 self.wordSentance4()
         elif text=='reset':
