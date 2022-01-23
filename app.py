@@ -113,6 +113,7 @@ class groupGame:
         self.timerA = Timer1(self.groupId)
         self.timerA.start()
     def messageR(self,text,userId):
+        global groupsList
         if text == '게임준비' and self.state==0:
             self.state = 1
             line_bot_api.push_message(self.groupId, TextSendMessage(text= '게임에 참가하실 분들은 참가 를 입력해주세요'))
@@ -152,6 +153,7 @@ class groupGame:
             self.resetGame()
         elif text == 'bye':
             line_bot_api.push_message(self.groupId, TextSendMessage(text='Leave Room'))
+            del groupsList(self.groupId)
             line_bot_api.leave_group(self.groupId)
 # function for create tmp dir for download content
 def make_static_tmp_dir():
