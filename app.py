@@ -67,28 +67,80 @@ handler = WebhookHandler(specialCS)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-state = 0#게임진행상태
-groupId = ''#방 식별 id
-memberList = []#게임 참가자 리스트
-file = None#게임 진행에 사용될 파일
-nowMem = 0#현재 순서인 멤버
-nowAnswer = []#현재 정답 리스트
-fileTemp = []#파일 readline저장
-
-def resetGame():#게임 설정 리셋
-    global state
-    state = 0
-    global memberList
-    memberList = []
-    global file
-    file = None
-    global nowMem
-    nowMem = 0
-    global nowAnswer
-    nowAnswer = []
-    global fileTemp
-    fileTemp = []
-
+groupsList = {}
+ws4file = open('4WS.txt','r',encoding='euc-kr')
+ws4arr = ws4file.readlines
+class groupGame:
+    def __init__(self,group_id):
+        self.state= 0#게임 진행 상태
+        self.groupId = group_id#방 식별 id
+        self.memberList = []#게임 참가자 리스트
+        self.file = None#게임 진행용파일
+        self.nowMem = 0#현재 순서 멤버
+        self.nowAnswer = []#현재 정답 리스트
+        self.fileTemp = []#파일 저장용 readlines
+        self.timerA = Timer1(self.groupId)#문제 타이머
+    def resetGame(self):#게임 진행 상태 리셋
+        self.state = 0
+        self.memberList = []
+        self.file = None
+        self.nowMem = 0
+        self.nowAnswer = []
+        self.fileTemp = []
+        self.timerA = Timer1(self.groupId)
+    def wordSentance4(self):#사자성어 정하기
+        global ws4arr
+        self.nowAnswer = []
+        q = ''
+        t = randint(0,len(ws4arr)-1)
+        sentance = ws4arr[t]
+        si = (int)(len(sentance)/2)
+        for i in range(si):
+            if i==0:
+                q = sentance[:2]
+            else:
+                self.nowAnswer.append(sentance[i*2:(i+1)*2])
+        targetMember = self.memberList[self.nowMem].display_name
+        line_bot_api.push_message(self.groupId, TextSendMessage(text='사자성어 이어말하기'))
+        line_bot_api.push_message(self.groupId, TextSendMessage(text= targetMember +' 님 문제입니다'))
+        sleep(1)
+        line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
+        self.timerA = Timer1(self.groupId)
+        self.timerA.start()
+    def messageR(self,text,userId):
+        if text == '게임준비' and self.state==0:
+            self.state = 1
+            line_bot_api.push_message(self.groupId, TextSendMessage(text= '게임에 참가하실 분들은 참가 를 입력해주세요'))
+        elif text == '참가' and self.state==1:
+            profile = line_bot_api.get_profile(userId)
+            if profile not in self.memberList:
+               self.memberList.append(profile)
+        elif text == '게임시작' and self.state==1:
+            self.nowMem = 0
+            if len(self.memberList)<1:
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='참가 인원이 없습니다'))
+            else:
+                members = ''
+                for mem in self.memberList:
+                    members += mem.display_name + ' '
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='참가 멤버는 '+ members + ' 입니다'))
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='게임을 선택하여 주십시오\n 1.사자성어 이어말하기'))
+                self.state = 2
+        elif text=='1' and self.state == 2:#사자성어 게임 시작
+            shuffle(self.memberList)
+            self.wordSentance4()
+        elif text in self.nowAnswer and self.state==3 and userId==self.memberList[self.nowMem].user_id:#사자성어 게임 정답
+            self.timerA.flag.set()
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
+            self.nowMem +=1
+            if self.nowMem>=len(self.memberList):
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='미션 성공!!'))
+                state = 1
+            else:
+                self.wordSentance4()
+        elif text=='reset':
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
+            self.resetGame()
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
@@ -101,52 +153,26 @@ def make_static_tmp_dir():
 
 #문제 푸는 시간 재는 함수
 class Timer1(threading.Thread):
-    def __init__(self):
+    def __init__(self,groupId):
         threading.Thread.__init__(self)
         self.flag = threading.Event()
+        global groupsList
+        self.groupId = groupId
+        self.nowAnswer = groupsList[groupId].nowAnswer
     def run(self):
-        global groupId
-        global state
         i = 5
         while not self.flag.is_set() and i>0:
-            line_bot_api.push_message(groupId, TextSendMessage(text=i))
+            line_bot_api.push_message(self.groupId, TextSendMessage(text=i))
             i-=1
             sleep(1)
         if i==0:
-            line_bot_api.push_message(groupId, TextSendMessage(text='땡!!'))
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='땡!!'))
             ans = ''
-            for a in nowAnswer:
+            for a in self.nowAnswer:
                 ans += a +' '
-            line_bot_api.push_message(groupId, TextSendMessage(text='정답은' + ans + '입니다'))
-            state = 1
-            line_bot_api.push_message(groupId, TextSendMessage(text='게임시작 을 말해주세요'))
-
-timerA = Timer1()
-
-####문제함수들 위치
-def wordSentance4():#사자성어 문제 정하는 함수
-    global file
-    global nowAnswer
-    global timerA
-    global fileTemp
-    q = ''
-    if fileTemp==[]:
-        fileTemp = file.readlines()
-    t = randint(0,len(fileTemp)-1)
-    sentance = fileTemp[t]
-    si = (int)(len(sentance)/2)
-    for i in range(si):
-        if i==0:
-            q = sentance[:2]
-        else:
-            nowAnswer.append(sentance[i*2:(i+1)*2])
-    targetMember = memberList[nowMem].display_name
-    line_bot_api.push_message(groupId, TextSendMessage(text='사자성어 이어말하기'))
-    line_bot_api.push_message(groupId, TextSendMessage(text= targetMember +'님 문제입니다'))
-    sleep(1)
-    line_bot_api.push_message(groupId, TextSendMessage(text=q))
-    timerA = Timer1()
-    timerA.start()
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='정답은 ' + ans + ' 입니다'))
+            groupsList[self.groupId].state = 1
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='게임시작 을 말해주세요'))
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -172,60 +198,16 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    global timerA
-    global groupId
-    global state
-    global memberList
-    global file
-    global nowMem
-    global nowAnswer
+    global groupsList
     text = event.message.text
-    if text == '게임준비' and state==0:
-        if isinstance(event.source, SourceGroup):
-            groupId = event.source.group_id
-            state = 1
-            memberList = []
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text='게임에 참가하실 분들은 참가 를 입력해주세요')
-            )
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="make Group Please"))
-    elif text == '참가' and state==1:
-        profile = line_bot_api.get_profile(event.source.user_id)
-        if profile not in memberList:
-            memberList.append(profile)
-    elif text == '게임시작' and state==1:
-        nowMem = 0
-        if len(memberList)<1:
-            line_bot_api.push_message(groupId, TextSendMessage(text='참가 인원이 없습니다'))
-        else:
-            members = ''
-            for mem in memberList:
-                members += mem.display_name + ' '
-            line_bot_api.push_message(groupId, TextSendMessage(text='참가 멤버는 '+ members + '입니다'))
-            line_bot_api.push_message(groupId, TextSendMessage(text='게임을 선택하여 주십시오\n 1.사자성어 이어말하기'))
-            state = 2
-    elif text=='1' and state == 2:#사자성어 게임 시작
-        state = 3
-        if file==None or file.name!='4WS.txt':
-            file = open('4WS.txt','r',encoding='euc-kr')
-        wordSentance4()
-    elif text in nowAnswer and state==3 and event.source.user_id==memberList[nowMem].user_id:#사자성어 게임 정답
-        timerA.flag.set()
+    if isinstance(event.source, SourceGroup):
+        groupId = event.source.group_id
+        if groupId not in groupsList:
+            groupsList[groupId] = groupGame(groupId)
+        groupsList[groupId].messageR(text,event.source.user_id)
+    else:
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="정답!!"))
-        nowMem +=1
-        if nowMem>=len(memberList):
-            line_bot_api.push_message(groupId, TextSendMessage(text='미션 성공!!'))
-            state = 1
-        else:
-            wordSentance4()
-    elif text=='reset':
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="Reset"))
-        resetGame()
+            event.reply_token, TextSendMessage(text="그룹을 만들어 주세요"))
     #elif text == '정답':
         #timerA.flag.set()
         #line_bot_api.reply_message(
