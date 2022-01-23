@@ -79,7 +79,7 @@ class groupGame:
         self.nowMem = 0#현재 순서 멤버
         self.nowAnswer = []#현재 정답 리스트
         self.fileTemp = []#파일 저장용 readlines
-        self.timerA = Timer1(self.groupId)#문제 타이머
+        self.timerA = Timer1(group_id)#문제 타이머
     def resetGame(self):#게임 진행 상태 리셋
         self.state = 0
         self.memberList = []
@@ -158,7 +158,6 @@ class Timer1(threading.Thread):
         self.flag = threading.Event()
         global groupsList
         self.groupId = groupId
-        self.nowAnswer = groupsList[groupId].nowAnswer
     def run(self):
         i = 5
         while not self.flag.is_set() and i>0:
@@ -168,7 +167,8 @@ class Timer1(threading.Thread):
         if i==0:
             line_bot_api.push_message(self.groupId, TextSendMessage(text='땡!!'))
             ans = ''
-            for a in self.nowAnswer:
+            nowAnswer = groupsList[self.groupId].nowAnswer
+            for a in nowAnswer:
                 ans += a +' '
             line_bot_api.push_message(self.groupId, TextSendMessage(text='정답은 ' + ans + ' 입니다'))
             groupsList[self.groupId].state = 1
@@ -203,7 +203,8 @@ def handle_text_message(event):
     if isinstance(event.source, SourceGroup):
         groupId = event.source.group_id
         if groupId not in groupsList:
-            groupsList[groupId] = groupGame(groupId)
+            temp_group = groupGame(groupId)
+            groupsList[groupId] = temp_group
         groupsList[groupId].messageR(text,event.source.user_id)
     else:
         line_bot_api.reply_message(
