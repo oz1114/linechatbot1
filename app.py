@@ -76,7 +76,7 @@ class groupGame:
         self.nowMem = 0#현재 순서 멤버
         self.nowAnswer = []#현재 정답 리스트
         self.fileTemp = []#파일 저장용 readlines
-        self.timerA = Timer1(group_id)#문제 타이머
+        self.timerA = Timer1(group_id,'')#문제 타이머
         self.ws4arr = []
     def resetGame(self):#게임 진행 상태 리셋
         self.state = 0
@@ -85,7 +85,7 @@ class groupGame:
         self.nowMem = 0
         self.nowAnswer = []
         self.fileTemp = []
-        self.timerA = Timer1(self.groupId)
+        self.timerA = Timer1(self.groupId,'')
     def wordSentance4(self):#사자성어 정하기
         self.nowAnswer = []
         if(len(self.ws4arr)==0):
