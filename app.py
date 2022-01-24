@@ -121,12 +121,12 @@ class groupGame:
             ans += a +' '
         line_bot_api.push_message(
             self.groupId, [
-                TextSendMessage(text='사자성어 이어말하기\n 제한시간 5초'),
+                TextSendMessage(text='사자성어 이어말하기\n 제한시간 6초'),
                 TextSendMessage(text= targetMember +' 님 문제입니다')
             ])
         sleep(1)
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
-        self.timerA = Timer1(self.groupId,ans,5)
+        self.timerA = Timer1(self.groupId,ans,6)
         self.timerA.start()
     def capitalQuiz(self):
         global capitals
@@ -161,12 +161,12 @@ class groupGame:
         targetMember = self.memberList[self.nowMem].display_name
         line_bot_api.push_message(
             self.groupId, [
-                TextSendMessage(text='사물 이름 맞히기\n 제한시간 5초'),
+                TextSendMessage(text='사물 이름 맞히기\n 제한시간 6초'),
                 TextSendMessage(text= targetMember +' 님 문제입니다')
             ])
         sleep(1)
         line_bot_api.push_message(self.groupId, ImageSendMessage(qimage,qimage))
-        self.timerA = Timer1(self.groupId,ans,5)
+        self.timerA = Timer1(self.groupId,ans,6)
         self.timerA.start()
 
     def messageR(self,text,userId):
