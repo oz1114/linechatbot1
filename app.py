@@ -249,7 +249,8 @@ class groupGame:
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
                 self.nowMem = 0
-            line_bot_api.push_message(self.groupId, TextSendMessage(text='지금까지' + self.roundCounter + '문제 연속 정답!!'))
+            rc = str(self.roundCounter)
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='지금까지' + rc + '문제 연속 정답!!'))
             self.roundCounter+=1
             r = randint(1,3)
             if r==1:
