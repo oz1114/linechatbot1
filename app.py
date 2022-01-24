@@ -67,6 +67,8 @@ handler = WebhookHandler(specialCS)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 groupsList = {}
+f = open('Capital.txt', 'rt', encoding='UTF8')
+capitals = f.readlines()
 class groupGame:
     def __init__(self,group_id):
         self.state= 0#게임 진행 상태
@@ -76,7 +78,7 @@ class groupGame:
         self.nowMem = 0#현재 순서 멤버
         self.nowAnswer = []#현재 정답 리스트
         self.fileTemp = []#파일 저장용 readlines
-        self.timerA = Timer1(group_id,'')#문제 타이머
+        self.timerA = Timer1(group_id,'',0)#문제 타이머
         self.ws4arr = []
     def resetGame(self):#게임 진행 상태 리셋
         self.state = 0
@@ -85,7 +87,15 @@ class groupGame:
         self.nowMem = 0
         self.nowAnswer = []
         self.fileTemp = []
-        self.timerA = Timer1(self.groupId,'')
+        self.timerA = Timer1(self.groupId,'',0)
+    def missionSuccess(self):
+        line_bot_api.push_message(
+            self.groupId, [
+                TextSendMessage(text='정답!!'),
+                TextSendMessage(text='미션 성공!!'),
+                TextSendMessage(text='게임시작을 입력해주세요')
+                ])
+        self.state = 1
     def wordSentance4(self):#사자성어 정하기
         self.nowAnswer = []
         if(len(self.ws4arr)==0):
@@ -111,13 +121,32 @@ class groupGame:
             ans += a +' '
         line_bot_api.push_message(
             self.groupId, [
-                TextSendMessage(text='사자성어 이어말하기'),
-                TextSendMessage(text= targetMember +' 님 문제입니다'),
-                TextSendMessage(text= targetMember +'제한시간 5초')
+                TextSendMessage(text='사자성어 이어말하기\n 제한시간 5초'),
+                TextSendMessage(text= targetMember +' 님 문제입니다')
             ])
         sleep(1)
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
-        self.timerA = Timer1(self.groupId,ans)
+        self.timerA = Timer1(self.groupId,ans,5)
+        self.timerA.start()
+    def capitalQuiz(self):
+        global capitals
+        self.nowAnswer = []
+        t = randint(0,len(capitals)-1)
+        temp = capitals[t].split()
+        q = temp[0]
+        self.nowAnswer = temp[1:]
+        ans = ''
+        for a in temp[1:]:
+            ans += a +' '
+        targetMember = self.memberList[self.nowMem].display_name
+        line_bot_api.push_message(
+            self.groupId, [
+                TextSendMessage(text='수도 이름 맞히기\n 제한시간 7초'),
+                TextSendMessage(text= targetMember +' 님 문제입니다')
+            ])
+        sleep(1)
+        line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
+        self.timerA = Timer1(self.groupId,ans,7)
         self.timerA.start()
     def messageR(self,text,userId):
         if text == '게임준비' and self.state==0:
@@ -139,27 +168,35 @@ class groupGame:
                 line_bot_api.push_message(
                     self.groupId, [
                         TextSendMessage(text='참가 멤버는 '+ members + ' 입니다'),
-                        TextSendMessage(text='게임을 선택하여 주십시오\n 1.사자성어 이어말하기')
+                        TextSendMessage(text='게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기')
                         ])
                 self.state = 2
         elif text=='1' and self.state == 2:#사자성어 게임 시작
+            self.state = 3
             shuffle(self.memberList)
             self.nowMem = 0
-            self.state = 3
             self.wordSentance4()
+        elif text=='2' and self.state ==2:#수도 맞히기 게임 시작
+            self.state = 4
+            shuffle(self.memberList)
+            self.nowMem = 0
+            self.capitalQuiz()
         elif text in self.nowAnswer and self.state==3 and userId==self.memberList[self.nowMem].user_id:#사자성어 게임 정답
             self.timerA.flag.set()
-            line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
             self.nowMem +=1
             if self.nowMem>=len(self.memberList):
-                line_bot_api.push_message(
-                    self.groupId, [
-                        TextSendMessage(text='미션 성공!!'),
-                        TextSendMessage(text='게임시작을 입력해주세요')
-                        ])
-                self.state = 1
+                self.missionSuccess()
             else:
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.wordSentance4()
+        elif text in self.nowAnswer and self.state==4 and userId==self.memberList[self.nowMem].user_id:#수도 맞히기 정답
+            self.timerA.flag.set()
+            self.nowMem+=1
+            if self.nowMem>=len(self.memberList):
+                self.missionSuccess()
+            else:
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
+                self.capitalQuiz()
         elif text=='reset':
             line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
             self.resetGame()
@@ -175,25 +212,25 @@ def make_static_tmp_dir():
 
 #문제 푸는 시간 재는 함수
 class Timer1(threading.Thread):
-    def __init__(self,groupId,ans):
+    def __init__(self,groupId,ans,t):
         threading.Thread.__init__(self)
         self.flag = threading.Event()
         global groupsList
         self.groupId = groupId
         self.ans = ans
+        self.t = t
     def run(self):
-        i = 5
-        while not self.flag.is_set() and i>0:
+        while not self.flag.is_set() and self.t>0:
             #line_bot_api.push_message(self.groupId, TextSendMessage(text=i))
             sleep(1)
-            i-=1
-        if not self.flag.is_set() and i==0:
+            self.t-=1
+        if not self.flag.is_set() and self.t==0:
             groupsList[self.groupId].state = 1
             line_bot_api.push_message(
                 self.groupId, [
                     TextSendMessage(text='땡!!'),
                     TextSendMessage(text='정답은 ' + self.ans + ' 입니다'),
-                    TextSendMessage(text='게임시작 을 말해주세요')
+                    TextSendMessage(text='게임시작 을 입력해주세요')
                     ])
 
 @app.route("/callback", methods=['POST'])
