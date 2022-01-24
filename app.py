@@ -150,6 +150,7 @@ class groupGame:
         self.nowAnswer = []
         t = randint(0,len(file_list)-1)
         qimage = request.url_root + '/thingsQuizImage/' + file_list[t]
+        line_bot_api.push_message(self.groupId, TextSendMessage(text=file_list[t]+'\nand\n'+qimage))
         self.nowAnswer = file_list[t][:-5].split()
         ans = ''
         for a in self.nowAnswer:
