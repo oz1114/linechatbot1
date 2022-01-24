@@ -149,7 +149,7 @@ class groupGame:
         global file_list
         self.nowAnswer = []
         t = randint(0,len(file_list)-1)
-        qimage = 'thingsQuizImage/' + file_list[t]
+        qimage = request.url_root + '/thingsQuizImage/' + file_list[t]
         self.nowAnswer = file_list[t][:-5].split()
         ans = ''
         for a in self.nowAnswer:
