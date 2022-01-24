@@ -97,11 +97,7 @@ class groupGame:
         self.timerA = Timer1(self.groupId,'',0)
     def missionSuccess(self):
         line_bot_api.push_message(
-            self.groupId, [
-                TextSendMessage(text='정답!!'),
-                TextSendMessage(text='미션 성공!!'),
-                TextSendMessage(text='게임시작을 입력해주세요')
-                ])
+            self.groupId, TextSendMessage(text='정답!!\n미션 성공!!\n게임시작을 입력해주세요'))
         self.state = 1
     def wordSentance4(self):#사자성어 정하기
         self.nowAnswer = []
@@ -120,10 +116,9 @@ class groupGame:
         for a in self.nowAnswer:
             ans += a +' '
         line_bot_api.push_message(
-            self.groupId, [
-                TextSendMessage(text='사자성어 이어말하기\n 제한시간 6초'),
-                TextSendMessage(text= targetMember +' 님 문제입니다')
-            ])
+            self.groupId, 
+                TextSendMessage(text='사자성어 이어말하기\n 제한시간 6초\n\n'
+                +targetMember +' 님 문제입니다'))
         sleep(1)
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,6)
@@ -140,10 +135,9 @@ class groupGame:
             ans += a +' '
         targetMember = self.memberList[self.nowMem].display_name
         line_bot_api.push_message(
-            self.groupId, [
-                TextSendMessage(text='수도 이름 맞히기\n 제한시간 7초'),
-                TextSendMessage(text= targetMember +' 님 문제입니다')
-            ])
+            self.groupId,
+                TextSendMessage(text='수도 이름 맞히기\n 제한시간 7초\n\n'
+                + targetMember +' 님 문제입니다'))
         sleep(1)
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,7)
@@ -160,10 +154,9 @@ class groupGame:
             ans+=a+' '
         targetMember = self.memberList[self.nowMem].display_name
         line_bot_api.push_message(
-            self.groupId, [
-                TextSendMessage(text='사물 이름 맞히기\n 제한시간 6초'),
-                TextSendMessage(text= targetMember +' 님 문제입니다')
-            ])
+            self.groupId,
+                TextSendMessage(text='사물 이름 맞히기\n 제한시간 6초\n\n'
+                +targetMember +' 님 문제입니다'))
         sleep(1)
         line_bot_api.push_message(self.groupId, ImageSendMessage(qimage,qimage))
         self.timerA = Timer1(self.groupId,ans,6)
@@ -177,7 +170,6 @@ class groupGame:
             profile = line_bot_api.get_profile(userId)
             if profile not in self.memberList:
                self.memberList.append(profile)
-               line_bot_api.push_message(self.groupId, TextSendMessage(text=profile.display_name+' 님 참가하셨습니다'))
         elif text == '게임시작' and self.state==1:
             self.nowMem = 0
             if len(self.memberList)<1:
@@ -187,11 +179,10 @@ class groupGame:
                 for mem in self.memberList:
                     members += mem.display_name + ' '
                 line_bot_api.push_message(
-                    self.groupId, [
-                        TextSendMessage(text='참가 멤버는 '+ members + ' 입니다'),
-                        TextSendMessage(text='게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기'
-                        +'\n3.사물퀴즈\n4.endless랜덤게임')
-                        ])
+                    self.groupId,
+                        TextSendMessage(text='참가 멤버는\n'+ members + '\n입니다\n\n'
+                        +'게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기'
+                        +'\n3.사물퀴즈\n4.endless랜덤게임'))
                 self.state = 2
         elif text=='1' and self.state == 2:#사자성어 게임 시작
             self.state = 3
@@ -204,7 +195,7 @@ class groupGame:
             if self.nowMem>=len(self.memberList):
                 self.missionSuccess()
             else:
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
+                #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.wordSentance4()
         elif text=='2' and self.state ==2:#수도 맞히기 게임 시작
             self.state = 4
@@ -217,7 +208,7 @@ class groupGame:
             if self.nowMem>=len(self.memberList):
                 self.missionSuccess()
             else:
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
+                #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.capitalQuiz()
         elif text=='3' and self.state==2:#사물 퀴즈
             self.state=5
@@ -230,7 +221,7 @@ class groupGame:
             if self.nowMem>=len(self.memberList):
                 self.missionSuccess()
             else:
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
+                #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.thingsQuiz()
         elif text=='4' and self.state==2:#endless 랜덤게임
             self.state=99
@@ -289,11 +280,10 @@ class Timer1(threading.Thread):
         if not self.flag.is_set() and self.t==0:
             groupsList[self.groupId].state = 1
             line_bot_api.push_message(
-                self.groupId, [
-                    TextSendMessage(text='땡!!'),
-                    TextSendMessage(text='정답은 ' + self.ans + ' 입니다'),
-                    TextSendMessage(text='게임시작 을 입력해주세요')
-                    ])
+                self.groupId,
+                    TextSendMessage(text='땡!!\n'
+                    +'정답은 ' + self.ans + ' 입니다\n'
+                    +'게임시작 을 입력해주세요'))
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -326,10 +316,9 @@ def handle_text_message(event):
         if text=='profile':
             profile = line_bot_api.get_profile(event.source.user_id)
             line_bot_api.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(text='user_id: ' + event.source.user_id)
-                ]
+                event.reply_token, 
+                    TextSendMessage(text='Display name: ' + profile.display_name
+                    +'\nuser_id: ' + event.source.user_id)
             )
             return
         elif text == 'bye':
