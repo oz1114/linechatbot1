@@ -86,6 +86,7 @@ class groupGame:
         self.nowAnswer = []#현재 정답 리스트
         self.fileTemp = []#파일 저장용 readlines
         self.timerA = Timer1(group_id,'',0)#문제 타이머
+        self.roundCounter = 1#endless 랜덤게임 라운드 저장용
     def resetGame(self):#게임 진행 상태 리셋
         self.state = 0
         self.memberList = []
@@ -189,7 +190,7 @@ class groupGame:
                     self.groupId, [
                         TextSendMessage(text='참가 멤버는 '+ members + ' 입니다'),
                         TextSendMessage(text='게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기'
-                        +'\n3.사물퀴즈')
+                        +'\n3.사물퀴즈\n4.endless랜덤게임')
                         ])
                 self.state = 2
         elif text=='1' and self.state == 2:#사자성어 게임 시작
@@ -230,6 +231,32 @@ class groupGame:
                 self.missionSuccess()
             else:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
+                self.thingsQuiz()
+        elif text=='4' and self.state==2:#endless 랜덤게임
+            self.state=99
+            shuffle(self.memberList)
+            self.nowMem = 0
+            self.roundCounter = 1
+            r = randint(1,3)
+            if r==1:
+                self.wordSentance4()
+            elif r==2:
+                self.capitalQuiz()
+            elif r==3:
+                self.thingsQuiz()
+        elif text in self.nowAnswer and self.state==99 and userId==self.memberList[self.nowMem].user_id:#endless 랜덤게임 정답
+            self.timerA.flag.set()
+            self.nowMem+=1
+            if self.nowMem>=len(self.memberList):
+                self.nowMem = 0
+            line_bot_api.push_message(self.groupId, TextSendMessage(text='지금까지' + self.roundCounter + '문제 연속 정답!!'))
+            self.roundCounter+=1
+            r = randint(1,3)
+            if r==1:
+                self.wordSentance4()
+            elif r==2:
+                self.capitalQuiz()
+            elif r==3:
                 self.thingsQuiz()
         elif text=='reset':
             line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
