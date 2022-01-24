@@ -69,6 +69,10 @@ static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 groupsList = {}
 f = open('Capital.txt', 'rt', encoding='UTF8')
 capitals = f.readlines()
+f.close()
+f = open('4WS.txt','r',encoding='euc-kr')
+ws4arr = f.readlines()
+f.close()
 class groupGame:
     def __init__(self,group_id):
         self.state= 0#게임 진행 상태
@@ -79,7 +83,6 @@ class groupGame:
         self.nowAnswer = []#현재 정답 리스트
         self.fileTemp = []#파일 저장용 readlines
         self.timerA = Timer1(group_id,'',0)#문제 타이머
-        self.ws4arr = []
     def resetGame(self):#게임 진행 상태 리셋
         self.state = 0
         self.memberList = []
@@ -98,17 +101,10 @@ class groupGame:
         self.state = 1
     def wordSentance4(self):#사자성어 정하기
         self.nowAnswer = []
-        if(len(self.ws4arr)==0):
-            try:
-                ws4file = open('4WS.txt','r',encoding='euc-kr')
-                self.ws4arr = ws4file.readlines()
-                ws4file.close()
-            except:
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='파일열기 오류입니다'))
-                return
+        global ws4arr
         q = ''
-        t = randint(0,len(self.ws4arr)-1)
-        sentance = self.ws4arr[t]
+        t = randint(0,len(ws4arr)-1)
+        sentance = ws4arr[t]
         si = (int)(len(sentance)/2)
         for i in range(si):
             if i==0:
