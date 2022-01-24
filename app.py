@@ -74,7 +74,7 @@ f = open('4WS.txt','r',encoding='euc-kr')
 ws4arr = f.readlines()
 f.close()
 #file_list = os.listdir('thingsQuizImage')
-f.open('thingsQuiz.txt','rt',encoding='UTF8')
+f = open('thingsQuiz.txt','rt',encoding='UTF8')
 thingsq = f.readlines()
 class groupGame:
     def __init__(self,group_id):
