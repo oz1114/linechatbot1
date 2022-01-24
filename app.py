@@ -106,14 +106,18 @@ class groupGame:
             else:
                 self.nowAnswer.append(sentance[i*2:(i+1)*2])
         targetMember = self.memberList[self.nowMem].display_name
+        ans = ''
+        for a in self.nowAnswer:
+            ans += a +' '
         line_bot_api.push_message(
             self.groupId, [
                 TextSendMessage(text='사자성어 이어말하기'),
-                TextSendMessage(text= targetMember +' 님 문제입니다')
+                TextSendMessage(text= targetMember +' 님 문제입니다'),
+                TextSendMessage(text= targetMember +'제한시간 5초')
             ])
         sleep(1)
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
-        self.timerA = Timer1(self.groupId)
+        self.timerA = Timer1(self.groupId,ans)
         self.timerA.start()
     def messageR(self,text,userId):
         if text == '게임준비' and self.state==0:
@@ -171,29 +175,26 @@ def make_static_tmp_dir():
 
 #문제 푸는 시간 재는 함수
 class Timer1(threading.Thread):
-    def __init__(self,groupId):
+    def __init__(self,groupId,ans):
         threading.Thread.__init__(self)
         self.flag = threading.Event()
         global groupsList
         self.groupId = groupId
+        self.ans = ans
     def run(self):
         i = 5
         while not self.flag.is_set() and i>0:
-            line_bot_api.push_message(self.groupId, TextSendMessage(text=i))
+            #line_bot_api.push_message(self.groupId, TextSendMessage(text=i))
             i-=1
             sleep(1)
         if i==0:
-            line_bot_api.push_message(self.groupId, TextSendMessage(text='땡!!'))
-            ans = ''
-            nowAnswer = groupsList[self.groupId].nowAnswer
-            for a in nowAnswer:
-                ans += a +' '
+            groupsList[self.groupId].state = 1
             line_bot_api.push_message(
                 self.groupId, [
-                    TextSendMessage(text='정답은 ' + ans + ' 입니다'),
+                    TextSendMessage(text='땡!!'),
+                    TextSendMessage(text='정답은 ' + self.ans + ' 입니다'),
                     TextSendMessage(text='게임시작 을 말해주세요')
                     ])
-            groupsList[self.groupId].state = 1
 
 @app.route("/callback", methods=['POST'])
 def callback():
