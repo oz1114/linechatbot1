@@ -106,14 +106,16 @@ class groupGame:
             else:
                 self.nowAnswer.append(sentance[i*2:(i+1)*2])
         targetMember = self.memberList[self.nowMem].display_name
-        line_bot_api.push_message(self.groupId, TextSendMessage(text='사자성어 이어말하기'))
-        line_bot_api.push_message(self.groupId, TextSendMessage(text= targetMember +' 님 문제입니다'))
+        line_bot_api.push_message(
+            self.groupId, [
+                TextSendMessage(text='사자성어 이어말하기'),
+                TextSendMessage(text= targetMember +' 님 문제입니다')
+            ])
         sleep(1)
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId)
         self.timerA.start()
     def messageR(self,text,userId):
-        global groupsList
         if text == '게임준비' and self.state==0:
             self.state = 1
             line_bot_api.push_message(self.groupId, TextSendMessage(text= '게임에 참가하실 분들은 참가 를 입력해주세요'))
@@ -130,8 +132,11 @@ class groupGame:
                 members = ''
                 for mem in self.memberList:
                     members += mem.display_name + ' '
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='참가 멤버는 '+ members + ' 입니다'))
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='게임을 선택하여 주십시오\n 1.사자성어 이어말하기'))
+                line_bot_api.push_message(
+                    self.groupId, [
+                        TextSendMessage(text='참가 멤버는 '+ members + ' 입니다'),
+                        TextSendMessage(text='게임을 선택하여 주십시오\n 1.사자성어 이어말하기')
+                        ])
                 self.state = 2
         elif text=='1' and self.state == 2:#사자성어 게임 시작
             shuffle(self.memberList)
@@ -143,18 +148,17 @@ class groupGame:
             line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
             self.nowMem +=1
             if self.nowMem>=len(self.memberList):
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='미션 성공!!'))
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='게임시작을 입력해주세요'))
+                line_bot_api.push_message(
+                    self.groupId, [
+                        TextSendMessage(text='미션 성공!!'),
+                        TextSendMessage(text='게임시작을 입력해주세요')
+                        ])
                 self.state = 1
             else:
                 self.wordSentance4()
         elif text=='reset':
             line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
             self.resetGame()
-        elif text == 'bye':
-            line_bot_api.push_message(self.groupId, TextSendMessage(text='Leave Room'))
-            del groupsList[self.groupId]
-            line_bot_api.leave_group(self.groupId)
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
@@ -184,9 +188,12 @@ class Timer1(threading.Thread):
             nowAnswer = groupsList[self.groupId].nowAnswer
             for a in nowAnswer:
                 ans += a +' '
-            line_bot_api.push_message(self.groupId, TextSendMessage(text='정답은 ' + ans + ' 입니다'))
+            line_bot_api.push_message(
+                self.groupId, [
+                    TextSendMessage(text='정답은 ' + ans + ' 입니다'),
+                    TextSendMessage(text='게임시작 을 말해주세요')
+                    ])
             groupsList[self.groupId].state = 1
-            line_bot_api.push_message(self.groupId, TextSendMessage(text='게임시작 을 말해주세요'))
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -216,10 +223,25 @@ def handle_text_message(event):
     text = event.message.text
     if isinstance(event.source, SourceGroup):
         groupId = event.source.group_id
-        if groupId not in groupsList:
+        if text=='profile':
+            profile = line_bot_api.get_profile(event.source.user_id)
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage(text='Display name: ' + profile.display_name),
+                    TextSendMessage(text='user_id: ' + event.source.user_id)
+                ]
+            )
+            return
+        elif text == 'bye':
+            line_bot_api.push_message(groupId, TextSendMessage(text='Leave Room'))
+            del groupsList[groupId]
+            line_bot_api.leave_group(groupId)
+            return
+        elif groupId not in groupsList:
             temp_group = groupGame(groupId)
             groupsList[groupId] = temp_group
         groupsList[groupId].messageR(text,event.source.user_id)
+
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="그룹을 만들어 주세요"))
@@ -232,86 +254,6 @@ def handle_text_message(event):
             #event.reply_token, TextSendMessage(text="timer Start"))
         #timerA = Timer1()
         #timerA.start()
-
-@handler.add(MessageEvent, message=LocationMessage)
-def handle_location_message(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        LocationSendMessage(
-            title='Location', address=event.message.address,
-            latitude=event.message.latitude, longitude=event.message.longitude
-        )
-    )
-
-
-@handler.add(MessageEvent, message=StickerMessage)
-def handle_sticker_message(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        StickerSendMessage(
-            package_id=event.message.package_id,
-            sticker_id=event.message.sticker_id)
-    )
-
-
-# Other Message Type
-@handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
-def handle_content_message(event):
-    if isinstance(event.message, ImageMessage):
-        ext = 'jpg'
-    elif isinstance(event.message, VideoMessage):
-        ext = 'mp4'
-    elif isinstance(event.message, AudioMessage):
-        ext = 'm4a'
-    else:
-        return
-
-    message_content = line_bot_api.get_message_content(event.message.id)
-    with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
-        for chunk in message_content.iter_content():
-            tf.write(chunk)
-        tempfile_path = tf.name
-
-    dist_path = tempfile_path + '.' + ext
-    dist_name = os.path.basename(dist_path)
-    os.rename(tempfile_path, dist_path)
-
-    line_bot_api.reply_message(
-        event.reply_token, [
-            TextSendMessage(text='Save content.'),
-            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
-        ])
-
-
-@handler.add(MessageEvent, message=FileMessage)
-def handle_file_message(event):
-    message_content = line_bot_api.get_message_content(event.message.id)
-    with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix='file-', delete=False) as tf:
-        for chunk in message_content.iter_content():
-            tf.write(chunk)
-        tempfile_path = tf.name
-
-    dist_path = tempfile_path + '-' + event.message.file_name
-    dist_name = os.path.basename(dist_path)
-    os.rename(tempfile_path, dist_path)
-
-    line_bot_api.reply_message(
-        event.reply_token, [
-            TextSendMessage(text='Save file.'),
-            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
-        ])
-
-
-@handler.add(FollowEvent)
-def handle_follow(event):
-    app.logger.info("Got Follow event:" + event.source.user_id)
-    line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='Got follow event'))
-
-
-@handler.add(UnfollowEvent)
-def handle_unfollow(event):
-    app.logger.info("Got Unfollow event:" + event.source.user_id)
 
 
 @handler.add(JoinEvent)
