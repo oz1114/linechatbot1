@@ -73,6 +73,7 @@ f.close()
 f = open('4WS.txt','r',encoding='euc-kr')
 ws4arr = f.readlines()
 f.close()
+file_list = os.listdir('thingsQuizImage')
 class groupGame:
     def __init__(self,group_id):
         self.state= 0#게임 진행 상태
@@ -144,6 +145,26 @@ class groupGame:
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,7)
         self.timerA.start()
+    def thingsQuiz(self):
+        global file_list
+        self.nowAnswer = []
+        t = randint(0,len(file_list)-1)
+        qimage = 'thingsQuizImage/' + file_list[t]
+        self.nowAnswer = file_list[t][:-5].split()
+        ans = ''
+        for a in self.nowAnswer:
+            ans+=a+' '
+        targetMember = self.memberList[self.nowMem].display_name
+        line_bot_api.push_message(
+            self.groupId, [
+                TextSendMessage(text='사물 이름 맞히기\n 제한시간 5초'),
+                TextSendMessage(text= targetMember +' 님 문제입니다')
+            ])
+        sleep(1)
+        line_bot_api.push_message(self.groupId, ImageSendMessage(qimage,qimage))
+        self.timerA = Timer1(self.groupId,ans,5)
+        self.timerA.start()
+
     def messageR(self,text,userId):
         if text == '게임준비' and self.state==0:
             self.state = 1
@@ -164,7 +185,8 @@ class groupGame:
                 line_bot_api.push_message(
                     self.groupId, [
                         TextSendMessage(text='참가 멤버는 '+ members + ' 입니다'),
-                        TextSendMessage(text='게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기')
+                        TextSendMessage(text='게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기'
+                        +'\n3.사물퀴즈')
                         ])
                 self.state = 2
         elif text=='1' and self.state == 2:#사자성어 게임 시작
@@ -172,11 +194,6 @@ class groupGame:
             shuffle(self.memberList)
             self.nowMem = 0
             self.wordSentance4()
-        elif text=='2' and self.state ==2:#수도 맞히기 게임 시작
-            self.state = 4
-            shuffle(self.memberList)
-            self.nowMem = 0
-            self.capitalQuiz()
         elif text in self.nowAnswer and self.state==3 and userId==self.memberList[self.nowMem].user_id:#사자성어 게임 정답
             self.timerA.flag.set()
             self.nowMem +=1
@@ -185,6 +202,11 @@ class groupGame:
             else:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.wordSentance4()
+        elif text=='2' and self.state ==2:#수도 맞히기 게임 시작
+            self.state = 4
+            shuffle(self.memberList)
+            self.nowMem = 0
+            self.capitalQuiz()
         elif text in self.nowAnswer and self.state==4 and userId==self.memberList[self.nowMem].user_id:#수도 맞히기 정답
             self.timerA.flag.set()
             self.nowMem+=1
@@ -193,6 +215,19 @@ class groupGame:
             else:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.capitalQuiz()
+        elif text=='3' and self.state==2:#사물 퀴즈
+            self.state=5
+            shuffle(self.memberList)
+            self.nowMem = 0
+            self.thingsQuiz()
+        elif text in self.nowAnswer and self.state==5 and userId==self.memberList[self.nowMem].user_id:#사물퀴즈 정답
+            self.timerA.flag.set()
+            self.nowMem+=1
+            if self.nowMem>=len(self.memberList):
+                self.missionSuccess()
+            else:
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
+                self.thingsQuiz()
         elif text=='reset':
             line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
             self.resetGame()
