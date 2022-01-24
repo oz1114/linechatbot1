@@ -185,9 +185,9 @@ class Timer1(threading.Thread):
         i = 5
         while not self.flag.is_set() and i>0:
             #line_bot_api.push_message(self.groupId, TextSendMessage(text=i))
-            i-=1
             sleep(1)
-        if i==0:
+            i-=1
+        if not self.flag.is_set() and i==0:
             groupsList[self.groupId].state = 1
             line_bot_api.push_message(
                 self.groupId, [
