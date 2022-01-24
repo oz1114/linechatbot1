@@ -73,7 +73,9 @@ f.close()
 f = open('4WS.txt','r',encoding='euc-kr')
 ws4arr = f.readlines()
 f.close()
-file_list = os.listdir('thingsQuizImage')
+#file_list = os.listdir('thingsQuizImage')
+f.open('thingsQuiz.txt','rt',encoding='UTF8')
+thingsq = f.readlines()
 class groupGame:
     def __init__(self,group_id):
         self.state= 0#게임 진행 상태
@@ -146,11 +148,12 @@ class groupGame:
         self.timerA = Timer1(self.groupId,ans,7)
         self.timerA.start()
     def thingsQuiz(self):
-        global file_list
+        global thingsq
         self.nowAnswer = []
-        t = randint(0,len(file_list)-1)
-        qimage = 'thingsQuizImage/' + file_list[t]
-        self.nowAnswer = file_list[t][:-5].split()
+        t = randint(0,len(thingsq)-1)
+        temp = thingsq[t].split()
+        qimage = temp[-1]
+        self.nowAnswer = temp[:-1]
         ans = ''
         for a in self.nowAnswer:
             ans+=a+' '
