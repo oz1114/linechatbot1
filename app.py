@@ -188,7 +188,7 @@ class groupGame:
             else:
                 line_bot_api.push_message(self.memberList[i].user_id,TextSendMessage(text = self.nowAnswer[0]))
         line_bot_api.push_message(self.groupId, TextSendMessage(text= '카테고리는 '+liarGameCategory
-        +'\n순서대로 정답에 관해 설명해주시면 됩니다.\n순서는 '+talkOrder))
+        +'\n순서대로 정답에 관해 설명해주시면 됩니다.\n순서는 '+talkOrder+'\n첫번째 설명 시작!'))
         
     def messageR(self,text,userId):
         if text == '게임준비' and self.state==0:
@@ -281,11 +281,17 @@ class groupGame:
         elif text=='5' and self.state==2:#거짓말쟁이 게임
             self.state = 6
             shuffle(self.memberList)
+            self.roundCounter = 0
             self.nowMem = 0
             self.LiarGame()
         elif self.state==6 and userId==self.memberList[self.nowMem].user_id:#거짓말쟁이 게임 대화,투표시작
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
+                if self.roundCounter==0:
+                    self.roundCounter = 1
+                    self.nowMem = 0
+                    line_bot_api.push_message(self.groupId, TextSendMessage(text='두번째 설명 시작해주세요'))
+                    return
                 self.state=98
                 self.voted = set()
                 self.votedCount = [0 for i in range(len(self.memberList))]
@@ -309,7 +315,7 @@ class groupGame:
                 else:
                     line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name +'는 거짓말쟁이가 아니었습니다\n'
                     +'거짓말쟁이는 '+ line_bot_api.get_profile(self.liarMan).display_name
-                    +'\n거짓말쟁이의 승리!!\n정답은'+self.nowAnswer[0]))
+                    +'\n거짓말쟁이의 승리!!\n정답은 '+self.nowAnswer[0]))
                     self.state=1
         elif self.state==97 and userId==self.liarMan:
             if text==self.nowAnswer[0]:
