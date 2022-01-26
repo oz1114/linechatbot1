@@ -316,7 +316,7 @@ class groupGame:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 정답을 맞추었습니다.\n거짓말쟁이의 승리!!'))
                 self.state = 1
             else:
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 정답을 틀렸습니다.\n팀의 승리!!\n정답은'
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 답을 맞추지 못했습니다.\n팀의 승리!!\n정답은'
                 +self.nowAnswer[0]))
                 self.state=1
         elif text=='reset':
