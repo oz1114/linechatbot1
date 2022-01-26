@@ -12,6 +12,7 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 
+#state 1~7 게임 진행상태 96~99 기타 상태 100:대기상태
 
 import datetime
 import errno
@@ -84,19 +85,20 @@ class groupGame:
         self.state= 0#게임 진행 상태
         self.groupId = group_id#방 식별 id
         self.memberList = []#게임 참가자 리스트
-        self.file = None#게임 진행용파일
+        #self.file = None#게임 진행용파일
         self.nowMem = 0#현재 순서 멤버
         self.nowAnswer = []#현재 정답 리스트
         self.fileTemp = []#파일 저장용 readlines
         self.timerA = Timer1(group_id,'',0)#문제 타이머
-        self.roundCounter = 1#endless 랜덤게임 라운드 저장용
+        self.roundCounter = 1#endless 랜덤게임 라운드 저장용,거짓말쟁이게임 라운드 저장, 마피아게임 일수 저장
         self.voted = set()#투표여부 확인용
         self.votedCount = []#득표수
-        self.liarMan = ''
-    def resetGame(self):#게임 진행 상태 리셋
+        self.liarMan = ''#마피아 혹은 거짓말쟁이
+    #게임 진행 상태 리셋
+    def resetGame(self):
         self.state = 0
         self.memberList = []
-        self.file = None
+        #self.file = None
         self.nowMem = 0
         self.nowAnswer = []
         self.fileTemp = []
@@ -104,11 +106,13 @@ class groupGame:
         self.voted = set()
         self.votedCount = []
         self.liarMan = ''
+    #한줄 모두 정답
     def missionSuccess(self):
         line_bot_api.push_message(
             self.groupId, TextSendMessage(text='정답!!\n미션 성공!!\n게임시작을 입력해주세요'))
         self.state = 1
-    def wordSentance4(self):#사자성어 정하기
+    #사자성어 정하기
+    def wordSentance4(self):
         self.nowAnswer = []
         global ws4arr
         q = ''
@@ -132,7 +136,8 @@ class groupGame:
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,6)
         self.timerA.start()
-    def capitalQuiz(self):#수도퀴즈
+    #수도퀴즈
+    def capitalQuiz(self):
         global capitals
         self.nowAnswer = []
         t = randint(0,len(capitals)-1)
@@ -151,7 +156,8 @@ class groupGame:
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,7)
         self.timerA.start()
-    def thingsQuiz(self):#사물퀴즈
+    #사물퀴즈
+    def thingsQuiz(self):
         global thingsq
         self.nowAnswer = []
         t = randint(0,len(thingsq)-1)
@@ -170,7 +176,8 @@ class groupGame:
         line_bot_api.push_message(self.groupId, ImageSendMessage(qimage,qimage))
         self.timerA = Timer1(self.groupId,ans,6)
         self.timerA.start()
-    def LiarGame(self):#거짓말쟁이 게임
+    #거짓말쟁이 게임
+    def LiarGame(self):
         global liarGameList
         self.nowAnswer = []
         t = randint(0,len(liarGameList)-1)
@@ -210,14 +217,16 @@ class groupGame:
                     self.groupId,
                         TextSendMessage(text='참가 멤버는\n'+ members + '\n입니다\n\n'
                         +'게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기'
-                        +'\n3.사물퀴즈\n4.endless랜덤게임\n5.거짓말쟁이게임'))
+                        +'\n3.사물퀴즈\n4.endless랜덤게임\n5.거짓말쟁이게임\n6.마피아게임'))
                 self.state = 2
-        elif text=='1' and self.state == 2:#사자성어 게임 시작
+        #사자성어 게임 시작
+        elif text=='1' and self.state == 2:
             self.state = 3
             shuffle(self.memberList)
             self.nowMem = 0
             self.wordSentance4()
-        elif text in self.nowAnswer and self.state==3 and userId==self.memberList[self.nowMem].user_id:#사자성어 게임 정답
+        #사자성어 게임 정답
+        elif text in self.nowAnswer and self.state==3 and userId==self.memberList[self.nowMem].user_id:
             self.timerA.flag.set()
             self.nowMem +=1
             if self.nowMem>=len(self.memberList):
@@ -225,12 +234,14 @@ class groupGame:
             else:
                 #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.wordSentance4()
-        elif text=='2' and self.state ==2:#수도 맞히기 게임 시작
+        #수도 맞히기 게임 시작
+        elif text=='2' and self.state ==2:
             self.state = 4
             shuffle(self.memberList)
             self.nowMem = 0
             self.capitalQuiz()
-        elif text in self.nowAnswer and self.state==4 and userId==self.memberList[self.nowMem].user_id:#수도 맞히기 정답
+        #수도 맞히기 정답
+        elif text in self.nowAnswer and self.state==4 and userId==self.memberList[self.nowMem].user_id:
             self.timerA.flag.set()
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
@@ -238,12 +249,14 @@ class groupGame:
             else:
                 #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.capitalQuiz()
-        elif text=='3' and self.state==2:#사물 퀴즈
+        #사물 퀴즈
+        elif text=='3' and self.state==2:
             self.state=5
             shuffle(self.memberList)
             self.nowMem = 0
             self.thingsQuiz()
-        elif text in self.nowAnswer and self.state==5 and userId==self.memberList[self.nowMem].user_id:#사물퀴즈 정답
+        #사물퀴즈 정답
+        elif text in self.nowAnswer and self.state==5 and userId==self.memberList[self.nowMem].user_id:
             self.timerA.flag.set()
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
@@ -251,7 +264,8 @@ class groupGame:
             else:
                 #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.thingsQuiz()
-        elif text=='4' and self.state==2:#endless 랜덤게임
+        #endless 랜덤게임
+        elif text=='4' and self.state==2:
             self.state=99
             shuffle(self.memberList)
             self.nowMem = 0
@@ -263,7 +277,8 @@ class groupGame:
                 self.capitalQuiz()
             elif r==3:
                 self.thingsQuiz()
-        elif text in self.nowAnswer and self.state==99 and userId==self.memberList[self.nowMem].user_id:#endless 랜덤게임 정답
+        #endless 랜덤게임 정답
+        elif text in self.nowAnswer and self.state==99 and userId==self.memberList[self.nowMem].user_id:
             self.timerA.flag.set()
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
@@ -278,13 +293,15 @@ class groupGame:
                 self.capitalQuiz()
             elif r==3:
                 self.thingsQuiz()
-        elif text=='5' and self.state==2:#거짓말쟁이 게임
+        #거짓말쟁이 게임
+        elif text=='5' and self.state==2:
             self.state = 6
             shuffle(self.memberList)
             self.roundCounter = 0
             self.nowMem = 0
             self.LiarGame()
-        elif self.state==6 and userId==self.memberList[self.nowMem].user_id:#거짓말쟁이 게임 대화,투표시작
+        #거짓말쟁이 게임 대화,투표시작
+        elif self.state==6 and userId==self.memberList[self.nowMem].user_id:
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
                 if self.roundCounter==0:
@@ -296,7 +313,8 @@ class groupGame:
                 self.voted = set()
                 self.votedCount = [0 for i in range(len(self.memberList))]
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='투표를 시작합니다\n득표수가 같은경우 앞사람으로 정해집니다.'))
-        elif self.state==98:#거짓말쟁이게임 투표
+        #거짓말쟁이게임 투표
+        elif self.state==98:
             i = 0
             correct = False
             for i in range(len(self.memberList)):
@@ -307,6 +325,7 @@ class groupGame:
                 self.voted.add(userId)
                 self.votedCount[i] +=1
             if len(self.voted) == len(self.memberList):
+                self.state=100
                 i = self.votedCount.index(max(self.votedCount))
                 if self.memberList[i].user_id==self.liarMan:
                     self.state=97
@@ -317,6 +336,7 @@ class groupGame:
                     +'거짓말쟁이는 '+ line_bot_api.get_profile(self.liarMan).display_name
                     +'\n거짓말쟁이의 승리!!\n정답은 '+self.nowAnswer[0]))
                     self.state=1
+        #거짓말쟁이가 정답을 말할 때
         elif self.state==97 and userId==self.liarMan:
             if text==self.nowAnswer[0]:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 정답을 맞추었습니다.\n거짓말쟁이의 승리!!'))
@@ -325,6 +345,65 @@ class groupGame:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 답을 맞추지 못했습니다.\n팀의 승리!!\n정답은'
                 +self.nowAnswer[0]))
                 self.state=1
+        #마피아게임 시작
+        elif self.state==2 and text=='6':
+            if len(self.memberList)<3:
+                self.state=1
+                return
+            self.state=7
+            shuffle(self.memberList)
+            self.nowMem = 0
+            self.roundCounter = 1
+            t = randint(0,len(self.memberList)-1)
+            self.liarMan = self.memberList[t].user_id
+            line_bot_api.push_message(self.memberList[t].user_id,TextSendMessage(text = '당신은 마피아 입니다.'))
+            line_bot_api.push_message(self.groupId,TextSendMessage(text = str(self.roundCounter)+'일차 낮입니다.'
+            +'\n토론을 진행한 후 투표시작 을 입력해주세요'))
+        #마피아게임 투표
+        elif self.state==7 and text=='투표시작':
+            self.state=96
+            self.voted = set()
+            self.votedCount = [0 for i in range(len(self.memberList))]
+        #마피아게임 투표중
+        elif self.state==96:
+            i=0
+            correct = False
+            for i in range(len(self.memberList)):
+                if self.memberList[i].display_name==text:
+                    correct = True
+                    break
+            if correct and userId not in self.voted:
+                self.voted.add(userId)
+                self.votedCount[i] +=1
+            if len(self.voted)==len(self.memberList):
+                self.state=100
+                i = self.votedCount.index(max(self.votedCount))
+                if self.memberList[i].user_id==self.liarMan:
+                    line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name
+                    +' 님은 마피아였습니다.\n시민의 승리!!'))
+                    self.resetGame()
+                else:
+                    self.memberList.remove(self.memberList[i])
+                    if len(self.memberList)<4:
+                        line_bot_api.push_message(self.groupId, TextSendMessage(text='마피아는 '
+                        +line_bot_api.get_profile(self.liarMan).display_name+' 님이었습니다.\n마피아의 승리!!'
+                        ))
+                        self.resetGame()
+                    else:
+                        line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name
+                        +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
+        elif text=='button':
+            buttons_template = ButtonsTemplate(
+                title='My buttons sample', text='Hello, my buttons', actions=[
+                    URIAction(label='Go to line.me', uri='https://line.me'),
+                    PostbackAction(label='ping', data='ping'),
+                    PostbackAction(label='ping with text', data='ping', text='ping'),
+                    MessageAction(label='Translate Rice', text='米')
+                    ])
+            template_message = TemplateSendMessage(
+                    alt_text='Buttons alt text', template=buttons_template)
+            line_bot_api.push_message(userId, template_message)
+        #진행상황 리셋(게임준비부터)
         elif text=='reset':
             #line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
             self.resetGame()
