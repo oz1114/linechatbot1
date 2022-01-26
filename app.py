@@ -74,8 +74,8 @@ f.close()
 f = open('4WS.txt','r',encoding='euc-kr')
 ws4arr = f.readlines()
 f.close()
-f = open('thingsQuiz.txt','rt',encoding='UTF8')
-thingsq = f.readlines()
+f = open('landMarkQuiz.txt','rt',encoding='UTF8')
+lmq = f.readlines()
 f.close()
 f = open('LiarGame.txt','rt',encoding='UTF8')
 liarGameList = f.readlines()
@@ -158,12 +158,12 @@ class groupGame:
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,7)
         self.timerA.start()
-    #사물퀴즈
-    def thingsQuiz(self):
-        global thingsq
+    #랜드마크 퀴즈
+    def landMarkQuiz(self):
+        global lmq
         self.nowAnswer = []
-        t = randint(0,len(thingsq)-1)
-        temp = thingsq[t].split()
+        t = randint(0,len(lmq)-1)
+        temp = lmq[t].split()
         qimage = temp[-1]
         self.nowAnswer = temp[:-1]
         ans = ''
@@ -172,11 +172,11 @@ class groupGame:
         targetMember = self.memberList[self.nowMem].display_name
         line_bot_api.push_message(
             self.groupId,
-                TextSendMessage(text='사물 이름 맞히기\n 제한시간 6초\n\n'
+                TextSendMessage(text='랜드마크 이름 맞히기\n 제한시간 7초\n\n'
                 +targetMember +' 님 문제입니다'))
         sleep(1)
         line_bot_api.push_message(self.groupId, ImageSendMessage(qimage,qimage))
-        self.timerA = Timer1(self.groupId,ans,6)
+        self.timerA = Timer1(self.groupId,ans,7)
         self.timerA.start()
     #거짓말쟁이 게임
     def LiarGame(self):
@@ -287,13 +287,13 @@ class groupGame:
             else:
                 #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.capitalQuiz()
-        #사물 퀴즈
+        #랜드마크 퀴즈
         elif text=='3' and self.state==2:
             self.state=5
             shuffle(self.memberList)
             self.nowMem = 0
-            self.thingsQuiz()
-        #사물퀴즈 정답
+            self.landMarkQuiz()
+        #랜드마크퀴즈 정답
         elif text in self.nowAnswer and self.state==5 and userId==self.memberList[self.nowMem].user_id:
             self.timerA.flag.set()
             self.nowMem+=1
@@ -301,7 +301,7 @@ class groupGame:
                 self.missionSuccess()
             else:
                 #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
-                self.thingsQuiz()
+                self.landMarkQuiz()
         #endless 랜덤게임
         elif text=='4' and self.state==2:
             self.state=99
@@ -314,7 +314,7 @@ class groupGame:
             elif r==2:
                 self.capitalQuiz()
             elif r==3:
-                self.thingsQuiz()
+                self.landMarkQuiz()
         #endless 랜덤게임 정답
         elif text in self.nowAnswer and self.state==99 and userId==self.memberList[self.nowMem].user_id:
             self.timerA.flag.set()
@@ -330,7 +330,7 @@ class groupGame:
             elif r==2:
                 self.capitalQuiz()
             elif r==3:
-                self.thingsQuiz()
+                self.landMarkQuiz()
         #거짓말쟁이 게임
         elif text=='5' and self.state==2:
             self.state = 6
