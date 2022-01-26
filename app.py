@@ -104,6 +104,7 @@ class groupGame:
         self.nowAnswer = []
         self.fileTemp = []
         self.timerA = Timer1(self.groupId,'',0)
+        self.roundCounter = 0
         self.voted = set()
         self.votedCount = []
         self.liarMan = ''
@@ -260,6 +261,7 @@ class groupGame:
         #사자성어 게임 시작
         elif text=='1' and self.state == 2:
             self.state = 3
+            self.roundCounter = 0
             shuffle(self.memberList)
             self.nowMem = 0
             self.wordSentance4()
@@ -275,6 +277,7 @@ class groupGame:
         #수도 맞히기 게임 시작
         elif text=='2' and self.state ==2:
             self.state = 4
+            self.roundCounter = 0
             shuffle(self.memberList)
             self.nowMem = 0
             self.capitalQuiz()
@@ -290,6 +293,7 @@ class groupGame:
         #랜드마크 퀴즈
         elif text=='3' and self.state==2:
             self.state=5
+            self.roundCounter = 0
             shuffle(self.memberList)
             self.nowMem = 0
             self.landMarkQuiz()
@@ -307,7 +311,7 @@ class groupGame:
             self.state=99
             shuffle(self.memberList)
             self.nowMem = 0
-            self.roundCounter = 1
+            self.roundCounter = 0
             r = randint(1,3)
             if r==1:
                 self.wordSentance4()
@@ -321,8 +325,6 @@ class groupGame:
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
                 self.nowMem = 0
-            rc = str(self.roundCounter)
-            line_bot_api.push_message(self.groupId, TextSendMessage(text='지금까지' + rc + '문제 연속 정답!!'))
             self.roundCounter+=1
             r = randint(1,3)
             if r==1:
@@ -465,7 +467,15 @@ class Timer1(threading.Thread):
             sleep(1)
             self.t-=1
         if not self.flag.is_set() and self.t==0:
-            groupsList[self.groupId].state = 1
+            gfunc = groupsList[self.groupId]
+            gfunc.state = 1
+            if gfunc.roundCounter>0:
+                rc = str(self.roundCounter)
+                line_bot_api.push_message(self.groupId, TextSendMessage(text= '땡!!\n'
+                +'정답은' +self.ans+' 입니다\n'
+                +'총 ' + rc + '문제 연속 정답'
+                +'게임시작 을 입력해주세요'))
+                return
             line_bot_api.push_message(
                 self.groupId,
                     TextSendMessage(text='땡!!\n'
