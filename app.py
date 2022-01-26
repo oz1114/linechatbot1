@@ -307,8 +307,8 @@ class groupGame:
                     line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이를 맞추셨습니다.\n거짓말쟁이는'
                     +self.memberList[i].display_name+'\n거짓말쟁이는 정답을 말해주세요'))
                 else:
-                    line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name+'는 거짓말쟁이가 아니었습니다\n'
-                    +'거짓말쟁이는 '+line_bot_api.get_profile(self.liarMan)).display_name)
+                    line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name +'는 거짓말쟁이가 아니었습니다\n'
+                    +'거짓말쟁이는 '+ line_bot_api.get_profile(self.liarMan).display_name))
                     self.state=1
         elif self.state==97 and userId==self.liarMan:
             if text==self.nowAnswer[0]:
