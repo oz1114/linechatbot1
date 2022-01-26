@@ -256,7 +256,7 @@ class groupGame:
                     self.groupId,
                         TextSendMessage(text='참가 멤버는\n'+ members + '\n입니다\n\n'
                         +'게임을 선택하여 주십시오\n1.사자성어 이어말하기\n2.수도 맞히기'
-                        +'\n3.사물퀴즈\n4.endless랜덤게임\n5.거짓말쟁이게임\n6.마피아게임'))
+                        +'\n3.랜드마크퀴즈\n4.endless랜덤게임\n5.거짓말쟁이게임\n6.마피아게임'))
                 self.state = 2
         #사자성어 게임 시작
         elif text=='1' and self.state == 2:
