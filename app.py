@@ -395,6 +395,7 @@ class groupGame:
             line_bot_api.push_message(self.memberList[t].user_id,TextSendMessage(text = '당신은 마피아 입니다.'))
             line_bot_api.push_message(self.groupId,TextSendMessage(text = str(self.roundCounter)+'일차 낮입니다.'
             +'\n토론을 진행한 후 투표시작 을 입력해주세요'))
+            self.roundCounter+=1
         #마피아게임 투표
         elif self.state==7 and text=='투표시작':
             self.state=96
