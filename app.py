@@ -430,10 +430,11 @@ class groupGame:
                         line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
                         self.mafiaButton()
-        elif text == '마피아테스트':
-            self.liarMan = userId
-            self.state=100
-            self.mafiaButton()
+        #마피아게임 테스트용
+        #elif text == '마피아테스트':
+            #self.liarMan = userId
+            #self.state=100
+            #self.mafiaButton()
         #진행상황 리셋(게임준비부터)
         elif text=='reset':
             #line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
