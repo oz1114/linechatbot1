@@ -309,14 +309,15 @@ class groupGame:
                 else:
                     line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name +'는 거짓말쟁이가 아니었습니다\n'
                     +'거짓말쟁이는 '+ line_bot_api.get_profile(self.liarMan).display_name)
-                    +'\n거짓말쟁이의 승리!!')
+                    +'\n거짓말쟁이의 승리!!\n정답은'+self.nowAnswer[0])
                     self.state=1
         elif self.state==97 and userId==self.liarMan:
             if text==self.nowAnswer[0]:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 정답을 맞추었습니다.\n거짓말쟁이의 승리!!'))
                 self.state = 1
             else:
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 정답을 틀렸습니다.\n팀의 승리!!'))
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 정답을 틀렸습니다.\n팀의 승리!!\n정답은'
+                +self.nowAnswer[0]))
                 self.state=1
         elif text=='reset':
             #line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
