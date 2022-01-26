@@ -392,17 +392,134 @@ class groupGame:
                     else:
                         line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
-        elif text=='button':
-            buttons_template = ButtonsTemplate(
-                title='', text='', actions=[
-                    URIAction(label='Go to line.me', uri='https://line.me'),
-                    PostbackAction(label='ping', data='ping'),
-                    PostbackAction(label='ping with text', data='ping', text='ping'),
-                    MessageAction(label='Translate Rice', text='米')
-                    ])
-            template_message = TemplateSendMessage(
-                    alt_text='투표하세요', template=buttons_template)
-            line_bot_api.push_message(userId, template_message)
+        elif text == 'test':
+            bubble_string = """
+        {
+          "type": "bubble",
+          "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "image",
+                "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip3.jpg",
+                "position": "relative",
+                "size": "full",
+                "aspectMode": "cover",
+                "aspectRatio": "1:1",
+                "gravity": "center"
+              },
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "Brown Hotel",
+                        "weight": "bold",
+                        "size": "xl",
+                        "color": "#ffffff"
+                      },
+                      {
+                        "type": "box",
+                        "layout": "baseline",
+                        "margin": "md",
+                        "contents": [
+                          {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                          },
+                          {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                          },
+                          {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                          },
+                          {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                          },
+                          {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
+                          },
+                          {
+                            "type": "text",
+                            "text": "4.0",
+                            "size": "sm",
+                            "color": "#d6d6d6",
+                            "margin": "md",
+                            "flex": 0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "¥62,000",
+                        "color": "#a9a9a9",
+                        "decoration": "line-through",
+                        "align": "end"
+                      },
+                      {
+                        "type": "text",
+                        "text": "¥42,000",
+                        "color": "#ebebeb",
+                        "size": "xl",
+                        "align": "end"
+                      }
+                    ]
+                  }
+                ],
+                "position": "absolute",
+                "offsetBottom": "0px",
+                "offsetStart": "0px",
+                "offsetEnd": "0px",
+                "backgroundColor": "#00000099",
+                "paddingAll": "20px"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "SALE",
+                    "color": "#ffffff"
+                  }
+                ],
+                "position": "absolute",
+                "backgroundColor": "#ff2600",
+                "cornerRadius": "20px",
+                "paddingAll": "5px",
+                "offsetTop": "10px",
+                "offsetEnd": "10px",
+                "paddingStart": "10px",
+                "paddingEnd": "10px"
+              }
+            ],
+            "paddingAll": "0px"
+          }
+        }
+        """
+            message = FlexSendMessage(alt_text="hello", contents=json.loads(bubble_string))
+            line_bot_api.push_message(self.groupId, message)
         #진행상황 리셋(게임준비부터)
         elif text=='reset':
             #line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
