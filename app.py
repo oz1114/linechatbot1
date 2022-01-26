@@ -394,14 +394,14 @@ class groupGame:
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
         elif text=='button':
             buttons_template = ButtonsTemplate(
-                title='My buttons sample', text='Hello, my buttons', actions=[
+                title='', text='', actions=[
                     URIAction(label='Go to line.me', uri='https://line.me'),
                     PostbackAction(label='ping', data='ping'),
                     PostbackAction(label='ping with text', data='ping', text='ping'),
                     MessageAction(label='Translate Rice', text='米')
                     ])
             template_message = TemplateSendMessage(
-                    alt_text='Buttons alt text', template=buttons_template)
+                    alt_text='투표하세요', template=buttons_template)
             line_bot_api.push_message(userId, template_message)
         #진행상황 리셋(게임준비부터)
         elif text=='reset':
