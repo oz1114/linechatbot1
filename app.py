@@ -94,6 +94,7 @@ class groupGame:
         self.voted = set()#투표여부 확인용 user_id 형식 집합
         self.votedCount = []#득표수 정수형 리스트
         self.liarMan = ''#마피아 혹은 거짓말쟁이 user_id 형식
+        self.mafiaMember = []#마피아게임용 멤버리스트
     #게임 진행 상태 리셋
     def resetGame(self):
         self.state = 0
@@ -106,6 +107,7 @@ class groupGame:
         self.voted = set()
         self.votedCount = []
         self.liarMan = ''
+        self.mafiaMember = []
     #한줄 모두 정답
     def missionSuccess(self):
         line_bot_api.push_message(
@@ -207,7 +209,7 @@ class groupGame:
     "spacing": "sm",
     "contents": [
         """
-        for prof in self.memberList:
+        for prof in self.mafiaMember:
             if prof.user_id == self.liarMan:
                 continue
             t_count+=1
@@ -386,6 +388,7 @@ class groupGame:
             if len(self.memberList)<3:
                 self.state=1
                 return
+            self.mafiaMember = self.memberList[:]
             self.state=7
             shuffle(self.memberList)
             self.nowMem = 0
@@ -400,34 +403,32 @@ class groupGame:
         elif self.state==7 and text=='투표시작':
             self.state=96
             self.voted = set()
-            self.votedCount = [0 for i in range(len(self.memberList))]
+            self.votedCount = [0 for i in range(len(self.mafiaMember))]
         #마피아게임 투표중
         elif self.state==96:
             i=0
             correct = False
-            for i in range(len(self.memberList)):
-                if self.memberList[i].display_name==text:
+            for i in range(len(self.mafiaMember)):
+                if self.mafiaMember[i].display_name==text:
                     correct = True
                     break
             if correct and userId not in self.voted:
                 self.voted.add(userId)
                 self.votedCount[i] +=1
-            if len(self.voted)==len(self.memberList):
+            if len(self.voted)==len(self.mafiaMember):
                 self.state=100
                 i = self.votedCount.index(max(self.votedCount))
-                if self.memberList[i].user_id==self.liarMan:
-                    line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name
+                if self.mafiaMember[i].user_id==self.liarMan:
+                    line_bot_api.push_message(self.groupId, TextSendMessage(text=self.mafiaMember[i].display_name
                     +' 님은 마피아였습니다.\n시민의 승리!!'))
-                    self.resetGame()
                 else:
-                    self.memberList.remove(self.memberList[i])
-                    if len(self.memberList)<4:
+                    self.mafiaMember.remove(self.mafiaMember[i])
+                    if len(self.mafiaMember)<4:
                         line_bot_api.push_message(self.groupId, TextSendMessage(text='마피아는 '
                         +line_bot_api.get_profile(self.liarMan).display_name+' 님이었습니다.\n마피아의 승리!!'
                         ))
-                        self.resetGame()
                     else:
-                        line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name
+                        line_bot_api.push_message(self.groupId, TextSendMessage(text=self.mafiaMember[i].display_name
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
                         self.mafiaButton()
         #마피아게임 테스트용
@@ -547,9 +548,9 @@ def handle_postback(event):
         if func.state!=100:
             return
         prof = line_bot_api.get_profile(uId)
-        if prof in func.memberList:
+        if prof in func.mafiaMember:
             func.state=7
-            func.memberList.remove(prof)
+            func.mafiaMember.remove(prof)
             line_bot_api.push_message(gId, TextSendMessage(text=prof.display_name+'님이 마피아에게 죽었습니다.'
             +'\n토론 후 투표시작을 입력해주세요'))
 
