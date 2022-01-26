@@ -82,18 +82,18 @@ liarGameList = f.readlines()
 f.close()
 class groupGame:
     def __init__(self,group_id):
-        self.state= 0#게임 진행 상태
+        self.state= 0#게임 진행 상태 정수형
         self.groupId = group_id#방 식별 id
-        self.memberList = []#게임 참가자 리스트
+        self.memberList = []#게임 참가자 리스트 프로필 형식 리스트
         #self.file = None#게임 진행용파일
-        self.nowMem = 0#현재 순서 멤버
-        self.nowAnswer = []#현재 정답 리스트
+        self.nowMem = 0#현재 순서 멤버 정수형
+        self.nowAnswer = []#현재 정답 리스트 텍스트형식 리스트
         self.fileTemp = []#파일 저장용 readlines
         self.timerA = Timer1(group_id,'',0)#문제 타이머
-        self.roundCounter = 1#endless 랜덤게임 라운드 저장용,거짓말쟁이게임 라운드 저장, 마피아게임 일수 저장
-        self.voted = set()#투표여부 확인용
-        self.votedCount = []#득표수
-        self.liarMan = ''#마피아 혹은 거짓말쟁이
+        self.roundCounter = 1#endless 랜덤게임 라운드 저장용,거짓말쟁이게임 라운드 저장, 마피아게임 일수 저장 정수형
+        self.voted = set()#투표여부 확인용 user_id 형식 집합
+        self.votedCount = []#득표수 정수형 리스트
+        self.liarMan = ''#마피아 혹은 거짓말쟁이 user_id 형식
     #게임 진행 상태 리셋
     def resetGame(self):
         self.state = 0
@@ -196,6 +196,42 @@ class groupGame:
                 line_bot_api.push_message(self.memberList[i].user_id,TextSendMessage(text = self.nowAnswer[0]))
         line_bot_api.push_message(self.groupId, TextSendMessage(text= '카테고리는 '+liarGameCategory
         +'\n순서대로 정답에 관해 설명해주시면 됩니다.\n순서는 '+talkOrder+'\n첫번째 설명 시작!'))
+    def mafiaButton(self):
+        t_count = 0
+        mafiaMessage = """
+        {
+  "type": "bubble",
+  "header": {
+    "type": "box",
+    "layout": "vertical",
+    "spacing": "sm",
+    "contents": [
+        """
+        for prof in self.memberList:
+            if prof.user_id == self.liarMan:
+                continue
+            t_count+=1
+            sampleContent = """{
+        "type": "button",
+        "style": "secondary",
+        "height": "sm",
+        "action": {
+          "type": "postback",
+          "label": 
+        """
+            sampleContent+="\""+prof.display_name+"\",\n\"data\":\""+"mafiakill "+self.groupId+' '+prof.user_id+"\"}},"
+            mafiaMessage+=sampleContent
+        mafiaMessage = mafiaMessage[:-1]
+        mafiaMessage+="""
+        ],
+    "flex": 0
+  }
+}
+        """
+        if t_count<1:
+            return
+        message = FlexSendMessage(alt_text="선택하시오", contents=json.loads(mafiaMessage))
+        line_bot_api.push_message(self.liarMan, message)
         
     def messageR(self,text,userId):
         if text == '게임준비' and self.state==0:
@@ -392,48 +428,11 @@ class groupGame:
                     else:
                         line_bot_api.push_message(self.groupId, TextSendMessage(text=self.memberList[i].display_name
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
-        elif text == 'test':
-            bubble_string = """
-        {
-  "type": "bubble",
-  "body": {
-    "type": "box",
-    "layout": "vertical",
-    "spacing": "md",
-    "contents": [
-      {
-        "type": "button",
-        "style": "primary",
-        "action": {
-          "type": "uri",
-          "label": "Primary style button",
-          "uri": "https://example.com"
-        }
-      },
-      {
-        "type": "button",
-        "style": "secondary",
-        "action": {
-          "type": "uri",
-          "label": "Secondary style button",
-          "uri": "https://example.com"
-        }
-      },
-      {
-        "type": "button",
-        "style": "link",
-        "action": {
-          "type": "uri",
-          "label": "Link style button",
-          "uri": "https://example.com"
-        }
-      }
-    ]
-  }
-}
-        """
-            message = FlexSendMessage(alt_text="hello", contents=json.loads(bubble_string))
-            line_bot_api.push_message(self.groupId, message)
+                        self.mafiaButton()
+        elif text == '마피아테스트':
+            self.liarMan = userId
+            self.state=100
+            self.mafiaButton()
         #진행상황 리셋(게임준비부터)
         elif text=='reset':
             #line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
@@ -535,16 +534,22 @@ def handle_leave():
 @handler.add(PostbackEvent)
 def handle_postback(event):
     global groupsList
-    if event.postback.data == 'ping':
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text='pong'))
-    elif event.postback.data == 'datetime_postback':
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=event.postback.params['datetime']))
-    elif event.postback.data == 'date_postback':
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=event.postback.params['date']))
-
+    gId = ''
+    uId = ''
+    temp = event.postback.data.split()
+    if len(temp)==3:
+        if temp[0]=='mafiakill':
+            gId = temp[1]
+            uId = temp[2]
+        func = groupsList[gId]
+        if func.state!=100:
+            return
+        prof = line_bot_api.get_profile(uId)
+        if prof in func.memberList:
+            func.state=7
+            func.memberList.remove(prof)
+            line_bot_api.push_message(gId, TextSendMessage(text=prof.display_name+'님이 마피아에게 죽었습니다.'
+            +'\n토론 후 투표시작을 입력해주세요'))
 
 @handler.add(BeaconEvent)
 def handle_beacon(event):
