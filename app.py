@@ -390,12 +390,12 @@ class groupGame:
                 return
             self.mafiaMember = self.memberList[:]
             self.state=7
-            shuffle(self.memberList)
+            shuffle(self.mafiaMember)
             self.nowMem = 0
             self.roundCounter = 1
-            t = randint(0,len(self.memberList)-1)
-            self.liarMan = self.memberList[t].user_id
-            line_bot_api.push_message(self.memberList[t].user_id,TextSendMessage(text = '당신은 마피아 입니다.'))
+            t = randint(0,len(self.mafiaMember)-1)
+            self.liarMan = self.mafiaMember[t].user_id
+            line_bot_api.push_message(self.mafiaMember[t].user_id,TextSendMessage(text = '당신은 마피아 입니다.'))
             line_bot_api.push_message(self.groupId,TextSendMessage(text = str(self.roundCounter)+'일차 낮입니다.'
             +'\n토론을 진행한 후 투표시작 을 입력해주세요'))
             self.roundCounter+=1
