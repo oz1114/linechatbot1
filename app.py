@@ -433,6 +433,11 @@ class groupGame:
                         line_bot_api.push_message(self.groupId, TextSendMessage(text=self.mafiaMember[i].display_name
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
                         self.mafiaButton()
+        elif text == '음악테스트':
+            audio_message = AudioSendMessage(
+                original_content_url='https://www.youtube.com/watch?v=9bZkp7q19f0',
+                duration=240000)
+            line_bot_api.push_message(self.groupId, audio_message)
         #마피아게임 테스트용
         #elif text == '마피아테스트':
             #self.liarMan = userId
