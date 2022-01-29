@@ -49,7 +49,7 @@ from linebot.models import (
     FlexSendMessage, BubbleContainer, ImageComponent, BoxComponent,
     TextComponent, IconComponent, ButtonComponent,
     SeparatorComponent, QuickReply, QuickReplyButton,
-    ImageSendMessage)
+    ImageSendMessage,AudioSendMessage)
 
 from time import sleep
 
