@@ -435,7 +435,7 @@ class groupGame:
                         self.mafiaButton()
         elif text == '음악테스트':
             audio_message = AudioSendMessage(
-                original_content_url='https://www.youtube.com/watch?v=9bZkp7q19f0',
+                original_content_url='https://vibe.naver.com/track/3264116#',
                 duration=240000)
             line_bot_api.push_message(self.groupId, audio_message)
         #마피아게임 테스트용
