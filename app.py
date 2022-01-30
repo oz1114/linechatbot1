@@ -136,7 +136,10 @@ class groupGame:
                 #TextSendMessage(text='사자성어 이어말하기\n 제한시간 6초\n\n'
                 #+targetMember +' 님 문제입니다'))
         sleep(1)
-        line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
+        msg = flexMSGS(q)
+        message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
+        line_bot_api.push_message(self.groupId, message)
+        #line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,6)
         self.timerA.start()
     #수도퀴즈
@@ -558,6 +561,28 @@ def handle_postback(event):
 @app.route('/static/<path:path>')
 def send_static_content(path):
     return send_from_directory('static', path)
+
+def flexMSGS(sentance):
+    msg="""
+    {
+  "type": "bubble",
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": 
+    """
+    msg += "\""+sentance+"\","
+    msg += """
+            "weight": "bold",
+        "size": "xxl"
+      }
+    ]
+  }
+}
+    """
 
 def flexMSGQ(title,user_name,t):
     msg = """
