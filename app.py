@@ -269,7 +269,6 @@ class groupGame:
             if self.nowMem>=len(self.memberList):
                 self.missionSuccess()
             else:
-                #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.wordSentance4()
         #수도 맞히기 게임 시작
         elif text=='2' and self.state ==2:
@@ -285,7 +284,6 @@ class groupGame:
             if self.nowMem>=len(self.memberList):
                 self.missionSuccess()
             else:
-                #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.capitalQuiz()
         #랜드마크 퀴즈
         elif text=='3' and self.state==2:
@@ -301,7 +299,6 @@ class groupGame:
             if self.nowMem>=len(self.memberList):
                 self.missionSuccess()
             else:
-                #line_bot_api.push_message(self.groupId, TextSendMessage(text='정답!!'))
                 self.landMarkQuiz()
         #endless 랜덤게임
         elif text=='4' and self.state==2:
@@ -473,8 +470,8 @@ class Timer1(threading.Thread):
             if gfunc.roundCounter>0:
                 rc = str(gfunc.roundCounter)
                 line_bot_api.push_message(self.groupId, TextSendMessage(text= '땡!!\n'
-                +'정답은' +self.ans+' 입니다\n'
-                +'총 ' + rc + '문제 연속 정답'
+                +'정답은 ' +self.ans+' 입니다\n'
+                +'총 ' + rc + ' 문제 연속 정답\n'
                 +'게임시작 을 입력해주세요'))
                 return
             line_bot_api.push_message(
