@@ -121,12 +121,9 @@ class groupGame:
         q = ''
         t = randint(0,len(ws4arr)-1)
         sentance = ws4arr[t]
-        si = (int)(len(sentance)/2)
-        for i in range(si):
-            if i==0:
-                q = sentance[:2]
-            else:
-                self.nowAnswer.append(sentance[i*2:(i+1)*2])
+        sentance = sentance.split()
+        q = sentance[0]
+        self.nowAnswer = sentance[1:]
         targetMember = self.memberList[self.nowMem].display_name
         ans = ''
         for a in self.nowAnswer:
@@ -583,7 +580,7 @@ def flexMSGQ(title,user_name,t):
         "type": "text",
         "text": 
     """
-    msg += "\""+user_name+" 님 문제입니다\","
+    msg += "\""+user_name+"\n님 문제입니다\","
     msg += """
         "weight": "bold",
         "size": "xl"
