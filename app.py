@@ -563,7 +563,6 @@ def send_static_content(path):
     return send_from_directory('static', path)
 
 def flexMSGQ(title,user_name,t):
-    ti = str(t)
     msg = """
     {
   "type": "bubble",
@@ -573,19 +572,21 @@ def flexMSGQ(title,user_name,t):
     "contents": [
       {
         "type": "text",
-        "text": 
+        "text": "
     """
-    msg += "\""+title+"\","
+    msg += title
     msg += """
+    ",
         "weight": "bold",
         "size": "xl"
       },
       {
         "type": "text",
-        "text": 
+        "text": "
     """
-    msg += "\""+user_name+" 님 문제입니다\","
+    msg += user_name
     msg += """
+        님 문제입니다",
         "weight": "bold",
         "size": "xl"
       },
@@ -593,8 +594,9 @@ def flexMSGQ(title,user_name,t):
         "type": "text",
         "text": "제한시간 
     """
-    msg += ti+"초\","
+    msg += str(t)
     msg += """
+        초",
         "size": "md",
         "color": "#999999",
         "margin": "md",
