@@ -572,31 +572,28 @@ def flexMSGQ(title,user_name,t):
     "contents": [
       {
         "type": "text",
-        "text": "
+        "text": 
     """
-    msg += title
+    msg += "\""+title+"\","
     msg += """
-    ",
         "weight": "bold",
         "size": "xl"
       },
       {
         "type": "text",
-        "text": "
+        "text": 
     """
-    msg += user_name
+    msg += "\""+user_name+" 님 문제입니다\","
     msg += """
-        님 문제입니다",
         "weight": "bold",
         "size": "xl"
       },
       {
         "type": "text",
-        "text": "제한시간 
+        "text": 
     """
-    msg += str(t)
+    msg += "\"제한시간 "+str(t)+"초\","
     msg += """
-        초",
         "size": "md",
         "color": "#999999",
         "margin": "md",
