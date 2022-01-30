@@ -131,10 +131,13 @@ class groupGame:
         ans = ''
         for a in self.nowAnswer:
             ans += a +' '
-        line_bot_api.push_message(
-            self.groupId, 
-                TextSendMessage(text='사자성어 이어말하기\n 제한시간 6초\n\n'
-                +targetMember +' 님 문제입니다'))
+        msg=flexMSGQ('사자성어 이어말하기',targetMember,6)
+        message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
+        line_bot_api.push_message(self.groupId, message)
+        #line_bot_api.push_message(
+            #self.groupId, 
+                #TextSendMessage(text='사자성어 이어말하기\n 제한시간 6초\n\n'
+                #+targetMember +' 님 문제입니다'))
         sleep(1)
         line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,6)
@@ -434,10 +437,7 @@ class groupGame:
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
                         self.mafiaButton()
         elif text == '음악테스트':
-            audio_message = AudioSendMessage(
-                original_content_url='https://tv.naver.com/v/9871',
-                duration=240000)
-            line_bot_api.push_message(self.groupId, audio_message)
+            return
         #마피아게임 테스트용
         #elif text == '마피아테스트':
             #self.liarMan = userId
@@ -537,18 +537,6 @@ def handle_text_message(event):
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="그룹을 만들어 주세요"))
 
-@handler.add(JoinEvent)
-def handle_join(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text='Joined this ' + event.source.type))
-
-
-@handler.add(LeaveEvent)
-def handle_leave():
-    app.logger.info("Got leave event")
-
-
 @handler.add(PostbackEvent)
 def handle_postback(event):
     global groupsList
@@ -569,18 +557,54 @@ def handle_postback(event):
             line_bot_api.push_message(gId, TextSendMessage(text=prof.display_name+'님이 마피아에게 죽었습니다.'
             +'\n토론 후 투표시작을 입력해주세요'))
 
-@handler.add(BeaconEvent)
-def handle_beacon(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(
-            text='Got beacon event. hwid={}, device_message(hex string)={}'.format(
-                event.beacon.hwid, event.beacon.dm)))
 
 @app.route('/static/<path:path>')
 def send_static_content(path):
     return send_from_directory('static', path)
 
+def flexMSGQ(title,user_name,t):
+    ti = str(t)
+    msg = """
+    {
+  "type": "bubble",
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": 
+    """
+    msg += "\""+title+"\","
+    msg += """
+        "weight": "bold",
+        "size": "xl"
+      },
+      {
+        "type": "text",
+        "text": 
+    """
+    msg += "\""+user_name+" 님 문제입니다\","
+    msg += """
+        "weight": "bold",
+        "size": "xl"
+      },
+      {
+        "type": "text",
+        "text": "제한시간 
+    """
+    msg += ti+"초\","
+    msg += """
+        "size": "md",
+        "color": "#999999",
+        "margin": "md",
+        "flex": 0
+      }
+    ]
+  }
+}
+    """
+    return msg
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
