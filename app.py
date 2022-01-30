@@ -85,11 +85,9 @@ class groupGame:
         self.state= 0#게임 진행 상태 정수형
         self.groupId = group_id#방 식별 id
         self.memberList = []#게임 참가자 리스트 프로필 형식 리스트
-        #self.file = None#게임 진행용파일
         self.nowMem = 0#현재 순서 멤버 정수형
         self.nowAnswer = []#현재 정답 리스트 텍스트형식 리스트
-        self.fileTemp = []#파일 저장용 readlines
-        self.timerA = Timer1(group_id,'',0)#문제 타이머
+        self.timerA = Timer1('','',0)#문제 타이머
         self.roundCounter = 1#endless 랜덤게임 라운드 저장용,거짓말쟁이게임 라운드 저장, 마피아게임 일수 저장 정수형
         self.voted = set()#투표여부 확인용 user_id 형식 집합
         self.votedCount = []#득표수 정수형 리스트
@@ -99,47 +97,42 @@ class groupGame:
     def resetGame(self):
         self.state = 0
         self.memberList = []
-        #self.file = None
         self.nowMem = 0
         self.nowAnswer = []
-        self.fileTemp = []
-        self.timerA = Timer1(self.groupId,'',0)
+        self.timerA = Timer1('','',0)
         self.roundCounter = 0
         self.voted = set()
         self.votedCount = []
         self.liarMan = ''
         self.mafiaMember = []
-    #한줄 모두 정답
+    #모두 정답
     def missionSuccess(self):
         line_bot_api.push_message(
             self.groupId, TextSendMessage(text='정답!!\n미션 성공!!\n게임시작을 입력해주세요'))
         self.state = 1
-    #사자성어 정하기
+    #사자성어 퀴즈
     def wordSentance4(self):
         self.nowAnswer = []
         global ws4arr
-        q = ''
+        #문제 선정
         t = randint(0,len(ws4arr)-1)
         sentance = ws4arr[t]
         sentance = sentance.split()
         q = sentance[0]
         self.nowAnswer = sentance[1:]
         targetMember = self.memberList[self.nowMem].display_name
+        #정답 출력용
         ans = ''
         for a in self.nowAnswer:
             ans += a +' '
-        msg=flexMSGQ('사자성어 이어말하기',targetMember,6)
+        
+        msg = flexMSGQ('사자성어 이어말하기',targetMember,6)
         message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
         line_bot_api.push_message(self.groupId, message)
-        #line_bot_api.push_message(
-            #self.groupId, 
-                #TextSendMessage(text='사자성어 이어말하기\n 제한시간 6초\n\n'
-                #+targetMember +' 님 문제입니다'))
         sleep(1)
         msg = flexMSGS(q)
         message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
         line_bot_api.push_message(self.groupId, message)
-        #line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
         self.timerA = Timer1(self.groupId,ans,6)
         self.timerA.start()
     #수도퀴즈
@@ -154,13 +147,13 @@ class groupGame:
         for a in temp[1:]:
             ans += a +' '
         targetMember = self.memberList[self.nowMem].display_name
-        line_bot_api.push_message(
-            self.groupId,
-                TextSendMessage(text='수도 이름 맞히기\n 제한시간 7초\n\n'
-                + targetMember +' 님 문제입니다'))
+        msg = flexMSGQ('수도 맞히기',targetMember,7)
+        message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
+        line_bot_api.push_message(self.groupId, message)
         sleep(1)
-        line_bot_api.push_message(self.groupId, TextSendMessage(text=q))
-        self.timerA = Timer1(self.groupId,ans,7)
+        msg = flexMSGS(q)
+        message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
+        line_bot_api.push_message(self.groupId, message)
         self.timerA.start()
     #랜드마크 퀴즈
     def landMarkQuiz(self):
@@ -174,10 +167,9 @@ class groupGame:
         for a in self.nowAnswer:
             ans+=a+' '
         targetMember = self.memberList[self.nowMem].display_name
-        line_bot_api.push_message(
-            self.groupId,
-                TextSendMessage(text='랜드마크 이름 맞히기\n 제한시간 7초\n\n'
-                +targetMember +' 님 문제입니다'))
+        msg = flexMSGQ('랜드마크 퀴즈',targetMember,7)
+        message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
+        line_bot_api.push_message(self.groupId, message)
         sleep(1)
         line_bot_api.push_message(self.groupId, ImageSendMessage(qimage,qimage))
         self.timerA = Timer1(self.groupId,ans,7)
@@ -202,6 +194,7 @@ class groupGame:
                 line_bot_api.push_message(self.memberList[i].user_id,TextSendMessage(text = self.nowAnswer[0]))
         line_bot_api.push_message(self.groupId, TextSendMessage(text= '카테고리는 '+liarGameCategory
         +'\n순서대로 정답에 관해 설명해주시면 됩니다.\n순서는 '+talkOrder+'\n첫번째 설명 시작!'))
+    #마피아게임 마피아가 누구 죽일지 고르는 버튼 생성
     def mafiaButton(self):
         t_count = 0
         mafiaMessage = """
@@ -355,18 +348,21 @@ class groupGame:
                 self.state=98
                 self.voted = set()
                 self.votedCount = [0 for i in range(len(self.memberList))]
-                line_bot_api.push_message(self.groupId, TextSendMessage(text='투표를 시작합니다\n득표수가 같은경우 앞사람으로 정해집니다.'))
+                line_bot_api.push_message(self.groupId, TextSendMessage(text='투표를 시작합니다\n득표수가 같은 경우 앞사람으로 정해집니다'))
         #거짓말쟁이게임 투표
         elif self.state==98:
             i = 0
             correct = False
+            #채팅 내용이 투표인가?
             for i in range(len(self.memberList)):
                 if self.memberList[i].display_name==text:
                     correct = True
                     break
+            #채팅 내용이 투표이고 채팅을 친 사람이 투표를 아직 하지 않은경우
             if correct and userId not in self.voted:
                 self.voted.add(userId)
                 self.votedCount[i] +=1
+            #투표가 완료된 경우
             if len(self.voted) == len(self.memberList):
                 self.state=100
                 i = self.votedCount.index(max(self.votedCount))
@@ -406,20 +402,23 @@ class groupGame:
             self.roundCounter+=1
         #마피아게임 투표
         elif self.state==7 and text=='투표시작':
-            self.state=96
             self.voted = set()
             self.votedCount = [0 for i in range(len(self.mafiaMember))]
+            self.state=96
         #마피아게임 투표중
         elif self.state==96:
             i=0
             correct = False
+            #채팅이 투표인가?
             for i in range(len(self.mafiaMember)):
                 if self.mafiaMember[i].display_name==text:
                     correct = True
                     break
+            #채팅이 투표이고 채팅을 친 사람이 투표를 하지 않았나?
             if correct and userId not in self.voted:
                 self.voted.add(userId)
                 self.votedCount[i] +=1
+            #모든 사람이 투표하면
             if len(self.voted)==len(self.mafiaMember):
                 self.state=100
                 i = self.votedCount.index(max(self.votedCount))
@@ -436,8 +435,6 @@ class groupGame:
                         line_bot_api.push_message(self.groupId, TextSendMessage(text=self.mafiaMember[i].display_name
                         +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))
                         self.mafiaButton()
-        elif text == '음악테스트':
-            return
         #마피아게임 테스트용
         #elif text == '마피아테스트':
             #self.liarMan = userId
@@ -445,7 +442,6 @@ class groupGame:
             #self.mafiaButton()
         #진행상황 리셋(게임준비부터)
         elif text=='reset':
-            #line_bot_api.push_message(self.groupId, TextSendMessage(text='게임 설정을 Reset 합니다'))
             self.resetGame()
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -468,7 +464,6 @@ class Timer1(threading.Thread):
         self.t = t
     def run(self):
         while not self.flag.is_set() and self.t>0:
-            #line_bot_api.push_message(self.groupId, TextSendMessage(text=i))
             sleep(1)
             self.t-=1
         if not self.flag.is_set() and self.t==0:
@@ -555,13 +550,14 @@ def handle_postback(event):
             func.state=7
             func.mafiaMember.remove(prof)
             line_bot_api.push_message(gId, TextSendMessage(text=prof.display_name+'님이 마피아에게 죽었습니다.'
-            +'\n토론 후 투표시작을 입력해주세요'))
+            +'\n토론 후 투표시작 을 입력해주세요'))
 
 
 @app.route('/static/<path:path>')
 def send_static_content(path):
     return send_from_directory('static', path)
 
+#큰 글씨체, 문제 제시용
 def flexMSGS(sentance):
     msg="""
     {
@@ -585,6 +581,7 @@ def flexMSGS(sentance):
     """
     return msg
 
+#문제 종류 및 문제 풀 사람 확인용, 큰글씨
 def flexMSGQ(title,user_name,t):
     msg = """
     {
