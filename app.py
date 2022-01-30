@@ -154,6 +154,7 @@ class groupGame:
         msg = flexMSGS(q)
         message = FlexSendMessage(alt_text="Quiz", contents=json.loads(msg))
         line_bot_api.push_message(self.groupId, message)
+        self.timerA = Timer1(self.groupId,ans,7)
         self.timerA.start()
     #랜드마크 퀴즈
     def landMarkQuiz(self):
