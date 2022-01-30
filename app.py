@@ -471,7 +471,7 @@ class Timer1(threading.Thread):
             gfunc = groupsList[self.groupId]
             gfunc.state = 1
             if gfunc.roundCounter>0:
-                rc = str(self.roundCounter)
+                rc = str(gfunc.roundCounter)
                 line_bot_api.push_message(self.groupId, TextSendMessage(text= '땡!!\n'
                 +'정답은' +self.ans+' 입니다\n'
                 +'총 ' + rc + '문제 연속 정답'
