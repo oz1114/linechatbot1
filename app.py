@@ -605,7 +605,7 @@ def flexMSGQ(title,user_name,t):
         "type": "text",
         "text": 
     """
-    msg += "\""+user_name+"\n님 문제입니다\","
+    msg += "\""+user_name+"님 문제\","
     msg += """
         "weight": "bold",
         "size": "xl"
