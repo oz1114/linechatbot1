@@ -583,6 +583,7 @@ def flexMSGS(sentance):
   }
 }
     """
+    return msg
 
 def flexMSGQ(title,user_name,t):
     msg = """
