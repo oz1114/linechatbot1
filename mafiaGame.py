@@ -69,7 +69,7 @@ def mafiaVote(self,text,userId):
             correct = True
             break
     #채팅이 투표이고 채팅을 친 사람이 투표를 하지 않았나?
-    if correct and userId not in self.voted:
+    if correct and userId not in self.voted and userId in self.mafiaMember:
         self.voted.add(userId)
         self.votedCount[i] +=1
     #모든 사람이 투표하면

@@ -35,7 +35,7 @@ def liarVote(self,text,userId):
             correct = True
             break
     #채팅 내용이 투표이고 채팅을 친 사람이 투표를 아직 하지 않은경우
-    if correct and userId not in self.voted:
+    if correct and userId not in self.voted and userId in self.memberList:
         self.voted.add(userId)
         self.votedCount[i] +=1
     #투표가 완료된 경우
