@@ -102,7 +102,7 @@ def handle_postback(event):
             gId = temp[1]
             uId = temp[2]
         func = groupsList[gId]
-        if func.state!=100:
+        if func.state!='mafiakill':
             return
         prof = line_bot_api.get_profile(uId)
         if prof in func.mafiaMember:

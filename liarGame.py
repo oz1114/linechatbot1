@@ -40,7 +40,7 @@ def liarVote(self,text,userId):
         self.votedCount[i] +=1
     #투표가 완료된 경우
     if len(self.voted) == len(self.memberList):
-        self.state=100
+        self.state='wait'
         i = self.votedCount.index(max(self.votedCount))
         if self.memberList[i].user_id==self.liarMan:
             self.state='liarspeak'

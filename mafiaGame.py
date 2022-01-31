@@ -50,7 +50,6 @@ def mafiaStart(self):
         self.state=1
         return
     self.mafiaMember = self.memberList[:]
-    self.state=7
     shuffle(self.mafiaMember)
     self.nowMem = 0
     self.roundCounter = 1

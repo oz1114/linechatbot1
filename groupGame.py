@@ -8,7 +8,7 @@ from linebot.exceptions import (
 )
 from linebot.models import TextSendMessage
 
-#state 1~7 게임 진행상태 96~99 기타 상태 100:대기상태
+#state 1~7 게임 진행상태
 
 class groupGame:
     def __init__(self,group_id):
@@ -181,6 +181,7 @@ class groupGame:
 
         #마피아게임 시작
         elif self.state==2 and text=='6':
+            self.state=7
             self.mafiaStart()
         #마피아게임 투표
         elif self.state==7 and text=='투표시작':
