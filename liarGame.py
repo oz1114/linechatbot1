@@ -28,14 +28,16 @@ def LiarGame(self):
 
 def liarVote(self,text,userId):
     i = 0
-    correct = False
-    #채팅 내용이 투표인가?
-    for i in range(len(self.memberList)):
-        if self.memberList[i].display_name==text:
-            correct = True
-            break
+    #채팅이 유효 투표인가?
+    co = False
+    vo = False
+    for temp in self.memberList:
+        if text==temp.display_name:
+            co = True
+        if userId==temp.user_id:
+            vo = True
     #채팅 내용이 투표이고 채팅을 친 사람이 투표를 아직 하지 않은경우
-    if correct and userId not in self.voted and userId in self.memberList:
+    if co and vo and userId not in self.voted:
         self.voted.add(userId)
         self.votedCount[i] +=1
     #투표가 완료된 경우
