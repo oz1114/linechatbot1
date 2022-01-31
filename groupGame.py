@@ -128,14 +128,14 @@ class groupGame:
 
         #endless 랜덤게임
         elif text=='4' and self.state==2:
-            self.state=99
+            self.state='randomGame'
             shuffle(self.memberList)
             self.nowMem = 0
             self.roundCounter = 0
             r = randint(0,2)
             self.quiz(gameList[r])
         #endless 랜덤게임 정답
-        elif text in self.nowAnswer and self.state==99 and userId==self.memberList[self.nowMem].user_id:
+        elif text in self.nowAnswer and self.state=='randomGame' and userId==self.memberList[self.nowMem].user_id:
             self.timerA.flag.set()
             self.nowMem+=1
             if self.nowMem>=len(self.memberList):
