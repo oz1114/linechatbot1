@@ -135,13 +135,13 @@ class Timer1(threading.Thread):
             self.gfunc.state = 1
             if self.gfunc.roundCounter>0:
                 rc = str(self.gfunc.roundCounter)
-                line_bot_api.push_message(self.groupId, TextSendMessage(text= '땡!!\n'
+                line_bot_api.push_message(self.gfunc.groupId, TextSendMessage(text= '땡!!\n'
                 +'정답은 ' +self.ans+' 입니다\n'
                 +'총 ' + rc + ' 문제 연속 정답\n'
                 +'게임시작 을 입력해주세요'))
                 return
             line_bot_api.push_message(
-                self.groupId,
-                    TextSendMessage(text='땡!!\n'
-                    +'정답은 ' + self.ans + ' 입니다\n'
-                    +'게임시작 을 입력해주세요'))
+                self.gfunc.groupId,
+                TextSendMessage(text='땡!!\n'
+                +'정답은 ' + self.ans + ' 입니다\n'
+                +'게임시작 을 입력해주세요'))
