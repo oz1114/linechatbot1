@@ -75,17 +75,19 @@ def mafiaVote(self,text,userId):
         self.votedCount[i] +=1
     #모든 사람이 투표하면
     if len(self.voted)==len(self.mafiaMember):
-        self.state=100
+        self.state='mafiakill'
         i = self.votedCount.index(max(self.votedCount))
         if self.mafiaMember[i].user_id==self.liarMan:
             line_bot_api.push_message(self.groupId, TextSendMessage(text=self.mafiaMember[i].display_name
             +' 님은 마피아였습니다.\n시민의 승리!!'))
+            self.state=1
         else:
             self.mafiaMember.remove(self.mafiaMember[i])
             if len(self.mafiaMember)<4:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='마피아는 '
                 +line_bot_api.get_profile(self.liarMan).display_name+' 님이었습니다.\n마피아의 승리!!'
                 ))
+                self.state=1
             else:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text=self.mafiaMember[i].display_name
                 +' 님은 선량한 시민이었습니다...\n이제 마피아의 밤입니다.\n마피아는 처리할 대상을 선택해주세요.'))

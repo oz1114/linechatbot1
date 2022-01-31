@@ -43,7 +43,7 @@ def liarVote(self,text,userId):
         self.state=100
         i = self.votedCount.index(max(self.votedCount))
         if self.memberList[i].user_id==self.liarMan:
-            self.state=97
+            self.state='liarspeak'
             line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이를 맞추셨습니다.\n거짓말쟁이는'
             +self.memberList[i].display_name+'\n거짓말쟁이는 정답을 말해주세요'))
         else:

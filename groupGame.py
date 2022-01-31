@@ -161,15 +161,15 @@ class groupGame:
                     self.nowMem = 0
                     line_bot_api.push_message(self.groupId, TextSendMessage(text='두번째 설명 시작해주세요'))
                     return
-                self.state=98
+                self.state='liarvote'
                 self.voted = set()
                 self.votedCount = [0 for i in range(len(self.memberList))]
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='투표를 시작합니다\n득표수가 같은 경우 앞사람으로 정해집니다'))
         #거짓말쟁이게임 투표
-        elif self.state==98:
+        elif self.state=='liarvote':
             self.liarVote(text,userId)
         #거짓말쟁이가 정답을 말할 때
-        elif self.state==97 and userId==self.liarMan:
+        elif self.state=='liarspeak' and userId==self.liarMan:
             if text==self.nowAnswer[0]:
                 line_bot_api.push_message(self.groupId, TextSendMessage(text='거짓말쟁이가 정답을 맞추었습니다.\n거짓말쟁이의 승리!!'))
                 self.state = 1
@@ -186,15 +186,15 @@ class groupGame:
         elif self.state==7 and text=='투표시작':
             self.voted = set()
             self.votedCount = [0 for i in range(len(self.mafiaMember))]
-            self.state=96
+            self.state='mafiavote'
         #마피아게임 투표중
-        elif self.state==96:
+        elif self.state=='mafiavote':
             self.mafiaVote(text,userId)
 
         #마피아게임 테스트용
         elif text == '마피아테스트' and len(self.memberList)>1:
             self.liarMan = userId
-            self.state=100
+            self.state='mafiakill'
             self.mafiaMember = self.memberList
             self.mafiaButton()
 
