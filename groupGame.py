@@ -196,7 +196,7 @@ class groupGame:
         elif text == '마피아테스트' and len(self.memberList)>1:
             self.liarMan = userId
             self.state='mafiakill'
-            self.mafiaMember = self.memberList
+            self.mafiaMember = self.memberList[:]
             self.mafiaButton()
 
         #진행상황 리셋(게임준비부터)
