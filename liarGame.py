@@ -27,19 +27,20 @@ def LiarGame(self):
     +'\n순서대로 정답에 관해 설명해주시면 됩니다.\n순서는 '+talkOrder+'\n첫번째 설명 시작!'))
 
 def liarVote(self,text,userId):
-    i = 0
+    f = 0
     #채팅이 유효 투표인가?
     co = False
     vo = False
-    for temp in self.memberList:
-        if text==temp.display_name:
+    for i in range(len(self.memberList)):
+        if text == self.memberList[i].idsplay_name:
             co = True
-        if userId==temp.user_id:
-            vo = True
+            f=i
+        if self.memberList[i].user_id==userId:
+            vo= True
     #채팅 내용이 투표이고 채팅을 친 사람이 투표를 아직 하지 않은경우
     if co and vo and userId not in self.voted:
         self.voted.add(userId)
-        self.votedCount[i] +=1
+        self.votedCount[f] +=1
     #투표가 완료된 경우
     if len(self.voted) == len(self.memberList):
         self.state='wait'
