@@ -61,19 +61,19 @@ def mafiaStart(self):
     self.roundCounter+=1
 
 def mafiaVote(self,text,userId):
-    i=0
     #채팅이 유효 투표인가?
     co = False
     vo = False
-    for temp in self.mafiaMember:
-        if text==temp.display_name:
+    for i in range(len(self.mafiaMember)):
+        if text==self.mafiaMember[i].display_name:
             co = True
-        if userId==temp.user_id:
+            f = i
+        if userId == self.mafiaMember[i].user_id:
             vo = True
     #채팅이 투표이고 채팅을 친 사람이 투표를 하지 않았나?
     if co and vo and userId not in self.voted:
         self.voted.add(userId)
-        self.votedCount[i] +=1
+        self.votedCount[f] +=1
     #모든 사람이 투표하면
     if len(self.voted)==len(self.mafiaMember):
         self.state='mafiakill'
